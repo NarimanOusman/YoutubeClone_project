@@ -1,12 +1,65 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+#  YouTube Clone
 
-Currently, two official plugins are available:
+A modern, responsive YouTube clone built with **React** and **React Router**. This project replicates the core UI of YouTube, including a **collapsible sidebar**, dynamic navbar, search bar, and video navigation — all with smooth animations and clean design.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+##  Preview
+
+![YouTube Clone Preview](screenshots/preview.png)
+
+> *Preview: Desktop layout with collapsible sidebar and responsive navbar*
+
+---
+
+## Features
+
+-  **Collapsible Sidebar**  
+  - Toggle between full and compact view
+  - Icons remain visible, text hides on collapse
+  - Smooth transitions and hover effects
+
+-  **Interactive Navbar**  
+  - Search bar with magnifying glass inside
+  - Menu, upload, notifications, and profile icons
+  - Responsive layout with proper spacing
+
+
+
+-  **Responsive Design**  
+  - Works on desktop
+  - Layout adjusts based on sidebar state
+
+-  **Clean UI & UX**  
+  - Professional hover effects
+  - Consistent iconography (using Lucide & Font Awesome)
+  - Subscriptions section with profile images
+
+---
+
+## 🛠 Built With
+
+- **React** – Component-based UI
+- **React Router DOM** – Client-side routing
+- **Lucide Icons** – Beautiful, lightweight SVG icons
+- **Font Awesome** – Additional icons
+- **Vite** – Blazing-fast development build tool
+- **CSS3** – Custom styling and animations
+
+---
+
+##  How to Run Locally
+
+1. **Clone the repo**
+   ```bash
+  git clone https://github.com/NarimanOusman/YoutubeClone_project.git
+
+CONNECT WITH ME: -----------------------------------------------------------------
+  Portfolio: https://github.com/NarimanOusman/Nariman-profile
+   Email: narimanrobo8@gmail.com 
+   WATS: +250793903619
+     
+
+ 
