@@ -56,7 +56,7 @@ A modern, responsive YouTube clone built with **React** and **React Router**. Th
    ```bash
   git clone https://github.com/NarimanOusman/YoutubeClone_project.git
 
-CONNECT WITH ME: -----------------------------------------------------------------
+CONNECT WITH ME: 
   Portfolio: https://github.com/NarimanOusman/Nariman-profile
    Email: narimanrobo8@gmail.com 
    WATS: +250793903619
