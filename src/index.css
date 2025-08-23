@@ -1,0 +1,34 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+a{
+  text-decoration: none;
+  color: inherit;
+}
+img{ cursor: pointer;}
+.flex-div{
+  display: flex;
+  align-items: center;
+  
+}
+/* Main Content Wrapper */
+.main-content {
+
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+
+
+/* On mobile */
+@media (max-width: 768px) {
+  .main-content,
+  .main-content.collapsed {
+    margin-left: 0;
+  }
+}

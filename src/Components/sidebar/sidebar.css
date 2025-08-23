@@ -1,0 +1,142 @@
+.sidebar {
+  background: #f0eded;
+  width: 15%;
+  min-width: 80px;
+  height: 100vh;
+  position: fixed;
+  top: 60px; /* 👈 Match navbar height (adjust as needed) */
+  left: 0;
+  padding-top: 20px;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Optional: Add padding-top to body to avoid jump */
+body {
+  margin: 0;
+  padding-top: 60px; /* If navbar is always visible */
+}
+
+.shortcut-links {
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px;
+  
+}
+
+.sidelink {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  width: fit-content;
+  margin-bottom: 8px;
+  color: rgb(76, 77, 79);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 25px;
+    
+  margin-left: 16px;
+}
+
+.sidelink p {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(0, 1, 3);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.sidelink svg {
+  transition: all 0.3s ease;
+  color: rgb(76, 77, 79);
+}
+
+.sidelink:hover {
+  background-color: #f0f0f0;
+  color: #d8391d;
+  transform: translateX(2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidelink:hover p,
+.sidelink:hover svg {
+  color: #d8391d;
+  font-weight: 600;
+}
+
+.sidebar hr {
+  margin: 20px 12px;
+  border: 0.5px solid #ccc;
+}
+
+.subscribers h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(0, 1, 3);
+  margin: 0 0 12px 0;
+  margin-left: 16px; /* Match .sidelink */
+}
+
+.subscribers .subscriber {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.subscribers .subscriber:hover {
+  background: #e0e0e0;
+}
+
+.subscribers .subscriber p {
+  font-size: 14px;
+  color: rgb(0, 1, 3);
+  font-weight: 500;
+  margin: 0;
+}
+
+.subscribers img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 16px; /* Fixed: was 15px */
+}
+
+/* Collapsed Sidebar */
+.small-sidebar {
+  width: 50px;
+  margin-right: 30px;
+}
+
+.small-sidebar .sidelink p,
+.small-sidebar h3,
+.small-sidebar .subscriber p {
+  display: none;
+}
+
+.small-sidebar .sidelink {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.small-sidebar .subscribers .subscriber {
+  
+  padding: 8px 0;
+}
+.small-sidebar .sidelink:hover{
+    background-color: #f0f0f0;
+  color: #d8391d;
+  transform: translateX(0.5px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px 16px;
+}

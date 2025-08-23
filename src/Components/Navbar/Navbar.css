@@ -1,0 +1,96 @@
+/* Base nav styles */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  padding: 10px 2%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  background-color: rgb(230, 226, 226);
+  border-top: 2px solid rgb(247, 57, 57);
+  z-index: 1010;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* When sidebar is collapsed */
+nav.collapsed {
+  width: 100% ; /* Shrink width */
+  
+}
+.nav-left, .nav-middle, .nav-right {
+  flex: 0 0 auto; /* Prevent shrinking */
+}
+
+
+
+
+
+
+/* Responsive: On small screens, hide sidebar by default */
+@media (max-width: 768px) {
+  nav.expanded,
+  nav.collapsed {
+    margin-left: 0 !important; /* Full width on mobile */
+  }
+}
+
+.search-container {
+  position: relative;
+  display: inline-block;
+ max-width: 450px; /* You can adjust this or make it responsive */
+   /* Optional: full width in nav-middle */
+   width: 100%s;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 16px; /* ← Increased right padding to avoid overlap */
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  right: 14px; /* Slightly inside */
+  transform: translateY(-50%);
+  color: gray;
+  pointer-events: none;
+  font-size: 16px; /* 🔼 Bigger icon */
+  /* Optional: if you want even larger */
+  /* width: 18px; height: 18px; */
+}
+.nav-left .logo{
+    width: 130px;
+    height: 30px;
+    margin-left: 10px;
+ 
+}
+.nav-right  img{
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-right img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  margin-left: 0; /* Remove any negative or large margin */
+  margin-right: 0;
+  border: 1px solid white; /* Optional: makes it visible */
+}
+
