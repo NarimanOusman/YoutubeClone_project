@@ -32,3 +32,13 @@ img{ cursor: pointer;}
     margin-left: 0;
   }
 }
+
+.container {
+  padding-left: 15%;
+  padding-right: 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.large-container {
+  padding-left: 70px;
+}
