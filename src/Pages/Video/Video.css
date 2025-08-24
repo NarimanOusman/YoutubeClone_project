@@ -1,0 +1,10 @@
+.played-container {
+ 
+  transition: padding-left 0.3s ease;
+}
+
+/* When sidebar is collapsed */
+.played-container.collapsed {
+  padding-left: 20px;
+  margin-top: 0;
+}

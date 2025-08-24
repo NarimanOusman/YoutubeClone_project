@@ -1,0 +1,124 @@
+.playvideo{
+    flex-basis: 69%;
+}
+/* Video Content (from h3 down) */
+.video-content {
+  padding-left: 10px; /* Matches sidebar width when expanded */
+  transition: padding-left 0.3s ease;
+  color: #0f0f0f;
+}
+
+/* When sidebar is collapsed */
+.video-content.sidebar-collapsed {
+  padding-left: 30px; /* Less padding, more space */
+}
+
+
+/* Keep video full width */
+.playvideo video {
+  
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: block;
+  margin-bottom: 16px;
+}
+.video-content h31 {
+  font-size: 24px;
+  font-weight: bold;
+  
+}
+/* Container for views + action buttons */
+.playvideo_info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #555;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.playvideo_info p {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Action icons: Like, Dislike, Share, Save */
+.video-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.video-actions span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.video-actions span:hover {
+  color: #0f0f0f;
+  transform: scale(1.05);
+}
+
+.video-actions img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.video-actions img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Responsive: Stack on small screens */
+@media (max-width: 600px) {
+  .playvideo_info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .video-actions {
+    gap: 16px;
+  }
+
+  .video-actions span {
+    font-size: 13px;
+  }
+
+  .video-actions img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+
+.publisher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+.publisher img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+}
+.publisher div {
+  flex: 1;
+  line-height: 1.4;
+}
+
