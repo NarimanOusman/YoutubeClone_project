@@ -1,5 +1,5 @@
 .played-container {
- 
+ flex-basis: 80%;
   transition: padding-left 0.3s ease;
 }
 

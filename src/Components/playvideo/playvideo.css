@@ -1,33 +1,70 @@
-.playvideo{
-    flex-basis: 69%;
-}
-/* Video Content (from h3 down) */
-.video-content {
-  padding-left: 10px; /* Matches sidebar width when expanded */
-  transition: padding-left 0.3s ease;
-  color: #0f0f0f;
-}
-
-/* When sidebar is collapsed */
-.video-content.sidebar-collapsed {
-  padding-left: 30px; /* Less padding, more space */
-}
-
-
-/* Keep video full width */
-.playvideo video {
+/* =========================================================
+   MAIN LAYOUT: Video + Recommended Side by Side
+   ========================================================= */
+.playvideo-container {
+  display: flex;
+  gap: 6px;
   
-  border-radius: 8px;
+  min-height: calc(100vh - 70px); /* Full height minus navbar */
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+}
+
+/* LEFT: Main Content (Video & Info) */
+.main-content {
+  flex: 1;
+  max-width: 75%;
+}
+
+/* RIGHT: Recommended Videos */
+.recommended-section {
+  flex: 0 0 25%; /* 25% width */
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+
+/* =========================================================
+   VIDEO PLAYER
+   ========================================================= */
+.video-player {
+  width: 100%;
+  height: 60vh;
+  border-radius: 2px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
   display: block;
   margin-bottom: 16px;
 }
-.video-content h31 {
-  font-size: 24px;
-  font-weight: bold;
-  
+
+
+/* =========================================================
+   VIDEO INFO & ACTIONS
+   ========================================================= */
+.video-content {
+  color: #0f0f0f;
+  transition: padding-left 0.3s ease;
 }
-/* Container for views + action buttons */
+
+.video-content.expanded {
+  padding-left: 10px;
+}
+
+.video-content.collapsed {
+  padding-left: 30px;
+}
+
+.video-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #0f0f0f;
+}
+
 .playvideo_info {
   display: flex;
   justify-content: space-between;
@@ -44,7 +81,6 @@
   font-weight: 500;
 }
 
-/* Action icons: Like, Dislike, Share, Save */
 .video-actions {
   display: flex;
   gap: 20px;
@@ -79,35 +115,15 @@
   transform: scale(1.1);
 }
 
-/* Responsive: Stack on small screens */
-@media (max-width: 600px) {
-  .playvideo_info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
 
-  .video-actions {
-    gap: 16px;
-  }
-
-  .video-actions span {
-    font-size: 13px;
-  }
-
-  .video-actions img {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-
+/* =========================================================
+   PUBLISHER (Channel Info + Subscribe Button)
+   ========================================================= */
 .publisher {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 16px 0;
-  font-family: 'Roboto', Arial, sans-serif;
 }
 
 .publisher img {
@@ -117,8 +133,163 @@
   object-fit: cover;
   border: 1px solid #e0e0e0;
 }
+
 .publisher div {
   flex: 1;
   line-height: 1.4;
 }
 
+.publisher p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 14px;
+  color: #0f0f0f;
+}
+
+.publisher span {
+  font-size: 12px;
+  color: #606060;
+}
+
+.publisher button {
+  background-color: #cc0000;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  min-width: 90px;
+}
+
+.publisher button:hover {
+  background-color: #b30000;
+  transform: scale(1.03);
+}
+
+.publisher button:active {
+  transform: scale(0.98);
+}
+
+.publisher:hover {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin: -16px 0;
+}
+
+
+/* =========================================================
+   DESCRIPTION & COMMENTS
+   ========================================================= */
+.description p {
+  margin: 10px 0;
+  color: #333;
+  line-height: 1.5;
+}
+
+.comment {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.comment:last-child {
+  border-bottom: none;
+}
+
+.comment img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.comment > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comment h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f0f0f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment h3 span {
+  font-size: 12px;
+  color: #606060;
+  font-weight: 400;
+}
+
+.comment p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.comment-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.comment-action img {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  cursor: pointer;
+}
+
+.comment-action img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.comment-action span {
+  font-size: 12px;
+  color: #555;
+  margin-left: -4px;
+}
+
+
+/* =========================================================
+   RESPONSIVE: Mobile Layout
+   ========================================================= */
+@media (max-width: 900px) {
+  .playvideo-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .main-content {
+    max-width: 100%;
+  }
+
+  .recommended-section {
+    flex: none;
+    max-width: 100%;
+    max-height: 400px;
+  }
+
+  .video-player {
+    height: 45vh;
+  }
+
+  .publisher:hover {
+    padding: 16px;
+    margin: -16px;
+  }
+}
