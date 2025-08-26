@@ -10,6 +10,7 @@ import {
   Headphones,
   Newspaper, // ✅ Correct name
   Rss,
+  TvMinimalPlay,
 } from "lucide-react";
 import jack from "../../assets/jack.png";
 import tom from "../../assets/tom.png";
@@ -42,6 +43,13 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
       >
         <Car size={24} />
         <p>Automobiles</p>
+      </div>
+      <div
+        className={`sidelink ${category === "30" ? "active" : ""}`}
+        onClick={() => setCategory("30")}
+      >
+        <TvMinimalPlay size={24} />
+        <p>Movies</p>
       </div>
 
       <div
