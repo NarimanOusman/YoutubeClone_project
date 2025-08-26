@@ -2,16 +2,16 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
-import Sidebar from "./Components/sidebar/sidebar"; // ✅ Import here
+import Sidebar from "./Components/sidebar/sidebar"; // ✅
 import Home from "./Pages/Home/Home";
 import Video from "./Pages/Video/Video";
 
 const App = () => {
   const [sidebar, setSidebar] = useState(true);
-
+  const [category, setCategory] = useState("0");
   return (
     <>
-      <Navbar setSidebar={setSidebar} />
+      <Navbar setSidebar={setSidebar} category setCategory={setCategory} />
 
       {/* ✅ Sidebar is rendered globally */}
       <Sidebar sidebar={sidebar} />

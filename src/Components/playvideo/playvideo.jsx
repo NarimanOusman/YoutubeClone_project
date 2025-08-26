@@ -26,7 +26,7 @@ const PlayVideo = ({ sidebar }) => {
 
         {/* Video Info Below */}
         <div className={`video-content ${sidebar ? "expanded" : "collapsed"}`}>
-          <h3>Best YouTube Movie</h3> {/* ✅ Use h3, not h31 */}
+          <h3>Best YouTube Movie</h3> 
           <div className="playvideo_info">
             <p>152 views &bull; 2 days ago</p>
             <div className="video-actions">
