@@ -62,7 +62,10 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "24" ? "active" : ""}`}
-        onClick={() => setCategory("24")}
+        onClick={() => {
+          console.log("Setting category to 24");
+          setCategory("24");
+        }}
       >
         <Tv size={24} />
         <p>Entertainment</p>
