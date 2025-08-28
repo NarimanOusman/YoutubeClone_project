@@ -11,6 +11,7 @@ import profile from "../../assets/jack.png"; // ✅ Correct
 import "./Navbar.css";
 
 import logo from "../../assets/logo.png";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ setSidebar, sidebar }) => {
   return (
@@ -23,7 +24,9 @@ const Navbar = ({ setSidebar, sidebar }) => {
           style={{ color: "rgba(73, 70, 70, 1)", fontSize: "28px" }}
           aria-hidden="true"
         />
-        <img className="logo" src={logo} alt="" />
+        <Link to="/">
+          <img className="logo" src={logo} alt="" />
+        </Link>
       </div>
       <div className="nav-middle flex-div">
         <div className="search-container">

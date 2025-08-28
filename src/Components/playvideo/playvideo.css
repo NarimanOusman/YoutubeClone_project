@@ -293,3 +293,12 @@
     margin: -16px;
   }
 }
+
+.playvideo-container iframe {
+  width: 100%;
+  height: 37vw;
+  border: none;
+}
+ h4{
+  margin-top: 6px;
+ }
