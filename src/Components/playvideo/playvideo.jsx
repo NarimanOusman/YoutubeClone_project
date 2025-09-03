@@ -6,12 +6,14 @@ import dislike from "../../assets/dislike.png";
 import share from "../../assets/share.png";
 import save from "../../assets/save.png";
 import jack from "../../assets/jack.png";
-import user_profile from "../../assets/user_profile.jpg";
+
 import Recommended from "../../Components/recommended/recommended";
 import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
+import { useParams } from "react-router-dom";
 
 const PlayVideo = ({ sidebar, videoId }) => {
+  const { categoryId } = useParams();
   const [apiData, setApiData] = useState(null);
   const [channelData, setChannelData] = useState(null);
   const [commentsData, setCommentsData] = useState([]);
@@ -207,7 +209,7 @@ const PlayVideo = ({ sidebar, videoId }) => {
 
       {/* RIGHT: Recommended Videos */}
       <div className="recommended-section">
-        <Recommended />
+        <Recommended categoryId={categoryId} />
       </div>
     </div>
   );

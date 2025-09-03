@@ -1,82 +1,66 @@
-import React from "react";
+// Recommended.jsx
+import React, { useState, useEffect } from "react";
 import "./recommended.css";
-import thumbnail1 from "../../assets/thumbnail1.png";
-import thumbnail2 from "../../assets/thumbnail2.png";
-import thumbnail3 from "../../assets/thumbnail3.png";
-import thumbnail4 from "../../assets/thumbnail4.png";
-import thumbnail5 from "../../assets/thumbnail5.png";
-import thumbnail6 from "../../assets/thumbnail6.png";
-import thumbnail7 from "../../assets/thumbnail7.png";
-import thumbnail8 from "../../assets/thumbnail8.png";
+import { API_KEY } from "../../data";
 
-const Recommended = () => {
+const Recommended = ({ categoryId }) => {
+  const [apiData, setApiData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      // ✅ Fixed URL: removed HTTP/1.1, added proper encoding
+      const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=12`;
+
+      const response = await fetch(relatedVideo_url);
+      const data = await response.json();
+
+      if (data.items) {
+        setApiData(data.items);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching recommended videos:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (categoryId) {
+      fetchData();
+    }
+  }, [categoryId]);
+
+  if (loading) {
+    return <div className="recommended">Loading recommended videos...</div>;
+  }
+
   return (
     <div className="recommended">
-      <div className="side-video-list">
-        <img src={thumbnail1} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-
-      <div className="side-video-list">
-        <img src={thumbnail2} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail3} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail4} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail5} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail6} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail7} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
-      <div className="side-video-list">
-        <img src={thumbnail8} alt="" />
-        <div className="vid-info">
-          <h4>Video Title </h4>
-          <p>Channel Name</p>
-          <p>1.5M views &bull; 2 days ago</p>
-        </div>
-      </div>
+      {apiData.length === 0 ? (
+        <p>No videos found</p>
+      ) : (
+        apiData.map((item) => (
+          <div className="side-video-list" key={item.id}>
+            <img
+              src={item.snippet.thumbnails.medium.url}
+              alt={item.snippet.title}
+              width="160"
+              height="90"
+            />
+            <div className="vid-info">
+              <h4>{item.snippet.title}</h4>
+              <p>{item.snippet.channelTitle}</p>
+              <p>
+                {item.statistics?.viewCount
+                  ? `${Math.round(item.statistics.viewCount / 1000)}K views`
+                  : "New"}{" "}
+                &bull; 2 days ago
+              </p>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
