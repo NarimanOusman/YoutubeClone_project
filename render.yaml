@@ -1,7 +1,6 @@
 services:
-  - type: web
-    name: youtube-clone
-    runtime: static
+  - type: static
+    name: nariman-youtube-clone
     buildCommand: npm run build
     staticPublishPath: ./dist
     routes:
