@@ -1,21 +1,29 @@
-.feed{
+.feed {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    grid-row-gap: 20px;
-    grid-column-gap: 16px;
-    padding-left: 20px;
-   
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-gap: 20px;
 }
-.card img{
+
+@media (max-width: 600px) {
+    .feed {
+        grid-template-columns: 1fr;
+        padding-left: 0;
+    }
+}
+
+.card img {
     width: 100%;
     height: auto;
     border-radius: 7px;
 }
-.feed .card h2{
+
+.feed .card h2 {
     font-size: 14px;
     margin-top: 2%;
     font-weight: bolder;
 }
-.feed .card p1 ,p{
+
+.feed .card p1,
+p {
     font-size: 12px;
 }
