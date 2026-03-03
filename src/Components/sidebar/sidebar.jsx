@@ -18,12 +18,17 @@ import simon from "../../assets/simon.png";
 import megan from "../../assets/megan.png";
 import cameron from "../../assets/cameron.png";
 
-const Sidebar = ({ sidebar, category, setCategory }) => {
+const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
+  const handleCategoryChange = (newCategory) => {
+    setCategory(newCategory);
+    if (setSearchQuery) setSearchQuery(""); // Clear search when switching categories
+  };
+
   return (
     <div className={`sidebar ${sidebar ? "" : "small-sidebar"}`}>
       <div
         className={`sidelink ${category === "0" ? "active" : ""}`}
-        onClick={() => setCategory("0")}
+        onClick={() => handleCategoryChange("0")}
       >
         <House size={24} />
         <p>Home</p>
@@ -31,7 +36,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "20" ? "active" : ""}`}
-        onClick={() => setCategory("20")}
+        onClick={() => handleCategoryChange("20")}
       >
         <Gamepad2 size={24} />
         <p>Games</p>
@@ -39,7 +44,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "2" ? "active" : ""}`}
-        onClick={() => setCategory("2")}
+        onClick={() => handleCategoryChange("2")}
       >
         <Car size={24} />
         <p>Automobiles</p>
@@ -47,7 +52,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "17" ? "active" : ""}`}
-        onClick={() => setCategory("17")}
+        onClick={() => handleCategoryChange("17")}
       >
         <Volleyball size={24} />
         <p>Sports</p>
@@ -55,10 +60,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "24" ? "active" : ""}`}
-        onClick={() => {
-          console.log("Setting category to 24");
-          setCategory("24");
-        }}
+        onClick={() => handleCategoryChange("24")}
       >
         <Tv size={24} />
         <p>Entertainment</p>
@@ -66,7 +68,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "28" ? "active" : ""}`}
-        onClick={() => setCategory("28")}
+        onClick={() => handleCategoryChange("28")}
       >
         <Laptop size={24} />
         <p>Technology</p>
@@ -74,7 +76,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "10" ? "active" : ""}`}
-        onClick={() => setCategory("10")}
+        onClick={() => handleCategoryChange("10")}
       >
         <Headphones size={24} />
         <p>Music</p>
@@ -82,7 +84,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "22" ? "active" : ""}`}
-        onClick={() => setCategory("22")}
+        onClick={() => handleCategoryChange("22")}
       >
         <Rss size={24} />
         <p>Blog</p>
@@ -90,7 +92,7 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
 
       <div
         className={`sidelink ${category === "25" ? "active" : ""}`}
-        onClick={() => setCategory("25")}
+        onClick={() => handleCategoryChange("25")}
       >
         <Newspaper size={24} />
         <p>News</p>

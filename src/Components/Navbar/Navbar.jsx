@@ -11,16 +11,15 @@ import profile from "../../assets/user_profile.jpg";
 import logo from "../../assets/logo.png";
 import "./Navbar.css";
 
-const Navbar = ({ setSidebar, sidebar }) => {
+const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
   const [searchInput, setSearchInput] = useState("");
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchInput) {
-      console.log("Searching for:", searchInput);
-      // Example: navigate(`/search/${searchInput}`);
-      // For now, let's just log it as a "placeholder activation"
+    if (searchInput.trim()) {
+      setSearchQuery(searchInput);
+      navigate("/"); // Redirect to home to show search results
     }
   };
 

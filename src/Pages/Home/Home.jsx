@@ -3,10 +3,10 @@ import React from "react";
 import "./Home.css";
 import Feed from "../../Components/feed/feed";
 
-const Home = ({ category }) => {
+const Home = ({ category, searchQuery }) => {
   return (
     <div className="home-feed">
-      <Feed category={category} />
+      <Feed category={category} searchQuery={searchQuery} />
     </div>
   );
 };
