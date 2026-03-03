@@ -22,10 +22,36 @@ body {
   top: 60px;
   left: 0;
   padding-top: 20px;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, left 0.3s ease;
   z-index: 1000;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    /* Hidden by default off-screen */
+    width: 200px;
+    height: calc(100vh - 60px);
+    background: white;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease;
+    z-index: 2000;
+    display: block !important;
+  }
+
+  /* When sidebar is 'true' (active), show it */
+  .sidebar:not(.small-sidebar) {
+    left: 0;
+  }
+
+  /* When sidebar is 'false' (small-sidebar), keep it hidden */
+  .small-sidebar {
+    left: -100% !important;
+  }
 }
 
 .small-sidebar {
@@ -37,7 +63,8 @@ body {
    ======================================== */
 .shortcut-links,
 .subscribers {
-  padding: 0 12px; /* ← Equal padding on both sides */
+  padding: 0 12px;
+  /* ← Equal padding on both sides */
 }
 
 /* ========================================
@@ -53,7 +80,8 @@ body {
   color: rgb(76, 77, 79);
   transition: all 0.3s ease;
 
-  position: relative; /* ← Needed for ::after */
+  position: relative;
+  /* ← Needed for ::after */
   overflow: hidden;
 }
 
@@ -75,18 +103,22 @@ body {
 .sidelink.active svg::after {
   content: "";
   position: absolute;
-  bottom: 2px;           /* Slight gap from bottom */
+  bottom: 2px;
+  /* Slight gap from bottom */
   left: 0;
   width: 90%;
   height: 2px;
-  background-color: #bb6a5c; /* Bright red */
+  background-color: #bb6a5c;
+  /* Bright red */
 
 
 }
 
 .sidelink.active {
-  background-color: #f02929; /* Light red background */
-  color: #929078;             /* Red text */
+  background-color: #f02929;
+  /* Light red background */
+  color: #929078;
+  /* Red text */
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-right: 7px;
@@ -112,7 +144,8 @@ body {
 
 .small-sidebar .sidelink svg,
 .small-sidebar .subscriber img {
-  margin: 0; /* Remove any margin */
+  margin: 0;
+  /* Remove any margin */
 }
 
 /* ========================================

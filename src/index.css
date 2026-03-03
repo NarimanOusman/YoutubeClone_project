@@ -33,12 +33,21 @@ img{ cursor: pointer;}
   }
 }
 
+/* Responsive container */
 .container {
-  padding-left: 15%;
-  padding-right: 10px;
+  padding-left: 17%;
+  padding-right: 2%;
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
 .large-container {
-  padding-left: 70px;
+  padding-left: 5%;
+}
+
+@media (max-width: 900px) {
+  .container, .large-container {
+    padding-left: 3%;
+    padding-right: 3%;
+  }
 }

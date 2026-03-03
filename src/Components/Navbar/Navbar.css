@@ -18,79 +18,63 @@ nav {
 
 /* When sidebar is collapsed */
 nav.collapsed {
-  width: 100% ; /* Shrink width */
-  
-}
-.nav-left, .nav-middle, .nav-right {
-  flex: 0 0 auto; /* Prevent shrinking */
+  width: 100%;
+  /* Shrink width */
+
 }
 
+.nav-left,
+.nav-middle,
+.nav-right {
+  flex: 0 0 auto;
+  /* Prevent shrinking */
+}
 
 
 
 
 
-/* Responsive: On small screens, hide sidebar by default */
-@media (max-width: 768px) {
-  nav.expanded,
-  nav.collapsed {
-    margin-left: 0 !important; /* Full width on mobile */
+
+/* Responsive: On small screens */
+@media (max-width: 900px) {
+  nav {
+    padding: 10px 3%;
+  }
+
+  .nav-left .logo {
+    width: 100px;
+    height: auto;
+  }
+
+  .nav-middle {
+    max-width: 140px;
+    /* Slimmer search on mobile */
+  }
+
+  .search-input {
+    font-size: 12px;
+    padding: 8px 30px 8px 12px;
+  }
+
+  /* Hide extra icons to save space on small screens */
+  .nav-right svg,
+  .nav-right [role="button"] {
+    display: none;
+  }
+
+  .nav-right .profile-img {
+    display: block;
+    /* Ensure profile stays */
   }
 }
 
-.search-container {
-  position: relative;
-  display: inline-block;
- max-width: 450px; /* You can adjust this or make it responsive */
-   /* Optional: full width in nav-middle */
-   width: 100%s;
-}
+@media (max-width: 600px) {
+  .nav-left svg {
+    margin-right: 5px;
+  }
 
-.search-input {
-  width: 100%;
-  padding: 10px 40px 10px 16px; /* ← Increased right padding to avoid overlap */
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
+  .nav-middle {
+    display: none;
+    /* Hide search completely on tiny screens to fit logo + profile */
+  }
 }
-
-.search-icon {
-  position: absolute;
-  top: 50%;
-  right: 14px; /* Slightly inside */
-  transform: translateY(-50%);
-  color: gray;
-  pointer-events: none;
-  font-size: 16px; /* 🔼 Bigger icon */
-  /* Optional: if you want even larger */
-  /* width: 18px; height: 18px; */
-}
-.nav-left .logo{
-    width: 130px;
-    height: 30px;
-    margin-left: 10px;
- 
-}
-.nav-right  img{
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-}
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.nav-right img {
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  margin-left: 0; /* Remove any negative or large margin */
-  margin-right: 0;
-  border: 1px solid white; /* Optional: makes it visible */
-}
-
