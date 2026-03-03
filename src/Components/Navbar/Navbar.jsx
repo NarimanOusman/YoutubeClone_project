@@ -1,61 +1,63 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  faMagnifyingGlass,
-  faFileArrowUp,
-  faBell,
-  faBars,
-} from "@fortawesome/free-solid-svg-icons";
-import MoreIcon from "../more"; // ✅ Correct
-import profile from "../../assets/user_profile.jpg"; // ✅ Correct
+  Menu,
+  Search,
+  Video,
+  Bell,
+  MoreVertical
+} from "lucide-react";
+import profile from "../../assets/user_profile.jpg";
+import logo from "../../assets/logo.png";
 import "./Navbar.css";
 
-import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
-
 const Navbar = ({ setSidebar, sidebar }) => {
+  const [searchInput, setSearchInput] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchInput) {
+      console.log("Searching for:", searchInput);
+      // Example: navigate(`/search/${searchInput}`);
+      // For now, let's just log it as a "placeholder activation"
+    }
+  };
+
   return (
     <nav className={`flex-div ${sidebar ? "expanded" : "collapsed"}`}>
-      <div className="nav-left flex-div ">
-        <FontAwesomeIcon
+      <div className="nav-left flex-div">
+        <Menu
+          className="menu-icon"
           onClick={() => setSidebar((prev) => !prev)}
-          icon={faBars}
-          size="1x"
-          style={{ color: "rgba(73, 70, 70, 1)", fontSize: "28px" }}
-          aria-hidden="true"
+          size={28}
+          color="#333"
+          style={{ cursor: "pointer" }}
         />
         <Link to="/">
-          <img className="logo" src={logo} alt="" />
+          <img className="logo" src={logo} alt="VidTube Logo" />
         </Link>
       </div>
+
       <div className="nav-middle flex-div">
-        <div className="search-container">
-          <input type="text" placeholder="Search" className="search-input" />
-          <FontAwesomeIcon icon={faMagnifyingGlass} className="search-icon" />
-        </div>
+        <form className="search-container" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search"
+            className="search-input"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button type="submit" className="search-button">
+            <Search className="search-icon" size={20} />
+          </button>
+        </form>
       </div>
+
       <div className="nav-right flex-div">
-        <FontAwesomeIcon
-          icon={faFileArrowUp}
-          size="1x"
-          style={{ color: "rgba(33, 108, 194, 1)", fontSize: "28px" }}
-          aria-hidden="true"
-        />
-        <MoreIcon
-          size={30}
-          color="rgba(33, 108, 194, 1)"
-          style={{ marginLeft: "8px", cursor: "pointer" }}
-          onClick={() => console.log("Dots menu clicked!")}
-          role="button"
-          tabIndex="0"
-          aria-label="More options"
-        />
-        <FontAwesomeIcon
-          icon={faBell}
-          size="2x"
-          style={{ color: "rgba(33, 108, 194, 1)", fontSize: "28px" }}
-          aria-hidden="true"
-        />
+        <Video className="nav-icon" size={24} style={{ cursor: "pointer" }} />
+        <Bell className="nav-icon" size={24} style={{ cursor: "pointer" }} />
+        <MoreVertical className="nav-icon" size={24} style={{ cursor: "pointer" }} />
         <img src={profile} alt="Profile" className="profile-img" />
       </div>
     </nav>

@@ -44,13 +44,6 @@ const Sidebar = ({ sidebar, category, setCategory }) => {
         <Car size={24} />
         <p>Automobiles</p>
       </div>
-      <div
-        className={`sidelink ${category === "30" ? "active" : ""}`}
-        onClick={() => setCategory("30")}
-      >
-        <TvMinimalPlay size={24} />
-        <p>Movies</p>
-      </div>
 
       <div
         className={`sidelink ${category === "17" ? "active" : ""}`}
