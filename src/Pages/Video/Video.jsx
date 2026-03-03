@@ -1,4 +1,7 @@
+import React from "react";
 import { useParams } from "react-router-dom";
+import "./Video.css";
+import PlayVideo from "../../Components/playvideo/playvideo";
 
 // Video.jsx
 const Video = ({ sidebar }) => {

@@ -28,7 +28,7 @@ const App = () => {
       <div className={`container ${!sidebar ? "large-container" : ""}`}>
         <Routes>
           <Route path="/" element={<Home category={category} searchQuery={searchQuery} />} />
-          <Route path="/video/:categoryId/:videoId" element={<Video />} />
+          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} />} />
         </Routes>
       </div>
     </>
