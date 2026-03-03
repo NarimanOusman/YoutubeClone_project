@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import "./recommended.css";
 import { API_KEY } from "../../data";
+import { Link } from "react-router-dom";
 
 const Recommended = ({ categoryId }) => {
   const [apiData, setApiData] = useState([]);
@@ -10,7 +11,7 @@ const Recommended = ({ categoryId }) => {
   const fetchData = async () => {
     try {
       // ✅ Fixed URL: removed HTTP/1.1, added proper encoding
-      const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=12`;
+      const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=12`;
 
       const response = await fetch(relatedVideo_url);
       const data = await response.json();
@@ -41,7 +42,11 @@ const Recommended = ({ categoryId }) => {
         <p>No videos found</p>
       ) : (
         apiData.map((item) => (
-          <div className="side-video-list" key={item.id}>
+          <Link
+            to={`/video/${item.snippet.categoryId}/${item.id}`}
+            className="side-video-list"
+            key={item.id}
+          >
             <img
               src={item.snippet.thumbnails.medium.url}
               alt={item.snippet.title}
@@ -58,7 +63,7 @@ const Recommended = ({ categoryId }) => {
                 &bull; 2 days ago
               </p>
             </div>
-          </div>
+          </Link>
         ))
       )}
     </div>

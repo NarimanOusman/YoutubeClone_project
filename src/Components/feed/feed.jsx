@@ -44,7 +44,7 @@ const feed = ({ category, searchQuery }) => {
 
         return (
           <Link
-            to={`/Video/${categoryId}/${videoId}`}
+            to={`/video/${categoryId}/${videoId}`}
             className="card-link"
             key={index}
           >
