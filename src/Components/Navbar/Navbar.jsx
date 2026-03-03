@@ -7,7 +7,7 @@ import {
   faBars,
 } from "@fortawesome/free-solid-svg-icons";
 import MoreIcon from "../more"; // ✅ Correct
-import profile from "../../assets/jack.png"; // ✅ Correct
+import profile from "../../assets/user_profile.jpg"; // ✅ Correct
 import "./Navbar.css";
 
 import logo from "../../assets/logo.png";
