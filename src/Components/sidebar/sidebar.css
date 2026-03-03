@@ -97,12 +97,21 @@ body {
 }
 
 .sidelink.active {
-  background-color: #f2f2f2;
-  font-weight: 700;
+  background-color: #e5e5e5;
+  color: #c00;
+  font-weight: 600;
+  border-left: 4px solid #c00;
+  border-radius: 0 8px 8px 0;
+  /* Rounded right side only to meet the border */
 }
 
 .sidelink.active p {
-  font-weight: 700;
+  font-weight: 600;
+  color: #c00;
+}
+
+.sidelink.active svg {
+  color: #c00;
 }
 
 

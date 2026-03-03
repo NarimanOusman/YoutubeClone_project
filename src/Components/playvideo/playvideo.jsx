@@ -82,9 +82,8 @@ const PlayVideo = ({ sidebar, videoId }) => {
       <div className="main-content">
         {/* Video Player */}
         <iframe
-          width="100%"
-          height="500"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`}
+          className="video-player"
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -147,10 +146,10 @@ const PlayVideo = ({ sidebar, videoId }) => {
               <p>{apiData?.snippet?.channelTitle || "Channel Name"}</p>
               <span>
                 {channelData?.statistics?.subscriberCount &&
-                channelData.statistics.subscriberCount !== "0"
+                  channelData.statistics.subscriberCount !== "0"
                   ? value_convertor(
-                      parseInt(channelData.statistics.subscriberCount)
-                    )
+                    parseInt(channelData.statistics.subscriberCount)
+                  )
                   : "0"}{" "}
                 subscribers
               </span>
