@@ -1,7 +1,7 @@
 // PlayVideo.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "./playvideo.css";
-import { ChevronLeft, ChevronRight, Send, Trash2, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Trash2, Image as ImageIcon } from "lucide-react";
 import like_icon from "../../assets/like.png";
 import dislike_icon from "../../assets/dislike.png";
 import share_icon from "../../assets/share.png";
@@ -27,7 +27,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
   const [newComment, setNewComment] = useState("");
   const [localComments, setLocalComments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [replyingTo, setReplyingTo] = useState(null); // ID of comment being replied to
+  const [replyingTo, setReplyingTo] = useState(null);
   const [commentInteractions, setCommentInteractions] = useState({});
 
   const fileInputRef = useRef(null);
@@ -64,13 +64,12 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
   });
   const handleSave = () => {
     if (isSaved) {
-      setSavedVideos(savedVideos.filter(v => (v.id === "string" ? v.id : v.id?.videoId) !== videoId));
+      setSavedVideos(savedVideos.filter(v => (typeof v.id === "string" ? v.id : v.id?.videoId) !== videoId));
     } else {
       setSavedVideos([...savedVideos, apiData]);
     }
   };
 
-  // File handling
   const handleFileChange = (e) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
@@ -81,7 +80,6 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     }
   };
 
-  // Comment Posting (including replies)
   const postComment = (e) => {
     e.preventDefault();
     if (!newComment.trim() && !selectedFile) return;
@@ -100,7 +98,6 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
         }
       },
       media: selectedFile,
-      parentId: replyingTo,
       isLocal: true,
       replies: []
     };
@@ -116,10 +113,6 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     setNewComment("");
     setSelectedFile(null);
     setReplyingTo(null);
-  };
-
-  const handleDeleteComment = (commentId) => {
-    setLocalComments(prev => prev.filter(c => c.id !== commentId));
   };
 
   const handleCommentInteraction = (commentId, type) => {
@@ -173,7 +166,8 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
 
   const getDisplayCount = (base, active) => {
     const num = Number(base) || 0;
-    return value_convertor(active ? num + 1 : num);
+    if (!active) return value_convertor(num);
+    return value_convertor(num + 1);
   };
 
   return (
@@ -185,22 +179,27 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           <button className="nav-arrow next" onClick={() => handleNavigate("next")}><ChevronRight size={35} color="white" /></button>
         </div>
 
-        <div className={`video-content ${sidebar ? "expanded" : "collapsed"}`}>
+        <div className="video-content">
           <h3>{apiData?.snippet?.title || "Loading..."}</h3>
           <div className="playvideo_info">
             <p>{apiData?.statistics?.viewCount ? value_convertor(parseInt(apiData.statistics.viewCount)) : "0"} views &bull; {apiData?.snippet?.publishedAt ? moment(apiData.snippet.publishedAt).fromNow() : ""}</p>
             <div className="video-actions">
               <span onClick={handleLike} className={isLiked ? "active-like" : ""}><img src={like_icon} alt="" /> {getDisplayCount(apiData?.statistics?.likeCount, isLiked)}</span>
               <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}><img src={dislike_icon} alt="" /></span>
-              <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Copied!"); }}><img src={share_icon} alt="" /> Share</span>
+              <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }}><img src={share_icon} alt="" /> Share</span>
               <span onClick={handleSave} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
             </div>
           </div>
           <hr />
           <div className="publisher">
             <img src={channelData?.snippet?.thumbnails?.high?.url || jack} alt="" />
-            <div><p>{apiData?.snippet?.channelTitle}</p><span>{channelData?.statistics?.subscriberCount ? value_convertor(parseInt(channelData.statistics.subscriberCount)) : "0"} subscribers</span></div>
-            <button onClick={() => setIsSubscribed(!isSubscribed)} className={isSubscribed ? "subscribed" : ""}>{isSubscribed ? "Subscribed" : "Subscribe"}</button>
+            <div>
+              <p>{apiData?.snippet?.channelTitle}</p>
+              <span>{channelData?.statistics?.subscriberCount ? value_convertor(parseInt(channelData.statistics.subscriberCount)) : "0"} subscribers</span>
+            </div>
+            <button onClick={() => setIsSubscribed(!isSubscribed)} className={isSubscribed ? "subscribed" : ""}>
+              {isSubscribed ? "Subscribed" : "Subscribe"}
+            </button>
           </div>
           <div className="description"><p>{apiData?.snippet?.description?.slice(0, 250)}...</p></div>
           <hr />
@@ -237,14 +236,10 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
                   <img src={snippet.authorProfileImageUrl} alt="" />
                   <div className="comment-body">
                     <h3><span>{snippet.authorDisplayName} <small>{moment(snippet.publishedAt).fromNow()}</small></span>
-                      {item.isLocal && <button className="delete-comment" onClick={() => handleDeleteComment(commentId)}><Trash2 size={16} /></button>}
+                      {item.isLocal && <button className="delete-comment" onClick={() => setLocalComments(localComments.filter(c => c.id !== commentId))}><Trash2 size={16} /></button>}
                     </h3>
                     <p>{snippet.textDisplay}</p>
-                    {item.media && (
-                      <div className="comment-media">
-                        {item.media.type === "image" ? <img src={item.media.url} alt="" /> : <video src={item.media.url} controls />}
-                      </div>
-                    )}
+                    {item.media && <div className="comment-media">{item.media.type === "image" ? <img src={item.media.url} alt="" /> : <video src={item.media.url} controls />}</div>}
                     <div className="comment-action">
                       <img src={like_icon} className={`comment-like ${interaction.liked ? "active" : ""}`} onClick={() => handleCommentInteraction(commentId, "like")} alt="" />
                       <span>{getDisplayCount(snippet.likeCount || 0, interaction.liked)}</span>
@@ -253,18 +248,12 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
                     </div>
                   </div>
                 </div>
-                {/* Local Replies */}
                 {item.replies?.map(reply => (
                   <div key={reply.id} className="comment local-reply">
                     <img src={reply.snippet.topLevelComment.snippet.authorProfileImageUrl} alt="" />
                     <div className="comment-body">
                       <h3>{reply.snippet.topLevelComment.snippet.authorDisplayName} <small>{moment(reply.snippet.publishedAt).fromNow()}</small></h3>
                       <p>{reply.snippet.topLevelComment.snippet.textDisplay}</p>
-                      {reply.media && (
-                        <div className="comment-media">
-                          {reply.media.type === "image" ? <img src={reply.media.url} alt="" /> : <video src={reply.media.url} controls />}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

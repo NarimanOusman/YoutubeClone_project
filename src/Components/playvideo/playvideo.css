@@ -1,59 +1,245 @@
 /* =========================================================
-   ADD COMMENT SECTION
+   1. MAIN LAYOUT: Video + Recommended Side by Side
+   ========================================================= */
+.playvideo-container {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  min-height: calc(100vh - 60px);
+}
+
+.main-content {
+  flex: 1;
+  max-width: 72%;
+}
+
+.recommended-section {
+  flex: 0 0 28%;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+}
+
+/* =========================================================
+   2. VIDEO PLAYER & WRAPPER
+   ========================================================= */
+.player-wrapper {
+  position: relative;
+  width: 100%;
+  background: black;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.video-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 80vh;
+  display: block;
+  border: none;
+}
+
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  z-index: 10;
+}
+
+.player-wrapper:hover .nav-arrow {
+  opacity: 1;
+}
+
+.nav-arrow:hover {
+  background: rgba(255, 0, 0, 0.8) !important;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-arrow.prev {
+  left: 20px;
+}
+
+.nav-arrow.next {
+  right: 20px;
+}
+
+/* =========================================================
+   3. VIDEO INFO & ACTIONS
+   ========================================================= */
+.video-content {
+  padding-top: 15px;
+  color: #0f0f0f;
+}
+
+.video-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.playvideo_info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.playvideo_info p {
+  font-size: 14px;
+  color: #606060;
+}
+
+.video-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.video-actions span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.video-actions span:hover {
+  background: #f2f2f2;
+}
+
+.video-actions img {
+  width: 18px;
+  /* Slightly reduced for better look */
+  height: 18px;
+}
+
+.active-like {
+  color: #065fd4 !important;
+}
+
+.active-like img {
+  filter: invert(30%) sepia(80%) saturate(2000%) hue-rotate(190deg);
+}
+
+.active-save {
+  color: #065fd4 !important;
+}
+
+.active-save img {
+  filter: invert(28%) sepia(90%) saturate(1600%) hue-rotate(195deg);
+}
+
+/* =========================================================
+   4. PUBLISHER & DESCRIPTION
+   ========================================================= */
+.publisher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+}
+
+.publisher img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.publisher div {
+  flex: 1;
+}
+
+.publisher p {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.publisher span {
+  font-size: 12px;
+  color: #606060;
+}
+
+.publisher button {
+  background: #cc0000;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.publisher button.subscribed {
+  background: #f2f2f2;
+  color: #606060;
+}
+
+.description {
+  background: #f2f2f2;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* =========================================================
+   5. COMMENTS SECTION
    ========================================================= */
 .add-comment-section {
   display: flex;
-  align-items: flex-start;
   gap: 15px;
-  margin: 20px 0 30px;
+  margin: 25px 0;
 }
 
 .user-profile-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover;
 }
 
 .add-comment-section form {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .input-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 5px;
-  transition: border-color 0.3s ease;
-  position: relative;
+  border-bottom: 2px solid #e5e5e5;
+  padding: 5px 0;
 }
 
 .input-group:focus-within {
   border-color: #0f0f0f;
 }
 
-.reply-tag {
-  background: #f0f0f0;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.reply-tag button {
-  padding: 0;
-  background: none;
-  font-size: 14px;
-  color: #c00;
-}
-
-.add-comment-section input {
+.input-group input {
   flex: 1;
   border: none;
   outline: none;
@@ -64,19 +250,13 @@
 .icon-btn {
   background: none;
   border: none;
-  color: #606060;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-}
-
-.icon-btn:hover {
-  background: #f0f0f0;
+  color: #606060;
 }
 
 .preview-container {
   position: relative;
-  width: 150px;
+  width: 120px;
   margin-top: 10px;
 }
 
@@ -88,63 +268,140 @@
 
 .remove-preview {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #000;
-  color: #fff;
+  top: -5px;
+  right: -5px;
+  background: black;
+  color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
+  font-size: 12px;
 }
 
-/* =========================================================
-   DESCRIPTION & COMMENTS
-   ========================================================= */
 .comment-block {
-  margin-bottom: 10px;
+  margin-top: 20px;
 }
 
-.local-reply {
-  margin-left: 55px;
-  padding-top: 5px;
-  border-left: 2px solid #e0e0e0;
-  padding-left: 15px;
+.comment {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.comment img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.comment-body h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.comment-body h3 small {
+  font-weight: 400;
+  color: #606060;
+  margin-left: 8px;
+}
+
+.comment-body p {
+  font-size: 14px;
+  margin: 0;
 }
 
 .comment-media img,
 .comment-media video {
-  max-width: 300px;
-  max-height: 400px;
+  max-width: 200px;
   border-radius: 8px;
-  margin: 10px 0;
+  margin-top: 8px;
+}
+
+.comment-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .comment-action img {
-  width: 14px;
-  /* Reduced size */
-  height: 14px;
-  /* Reduced size */
+  width: 16px;
+  height: 16px;
   cursor: pointer;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-.comment-action .reply-btn {
+.comment-like.active {
+  filter: invert(30%) sepia(80%) saturate(2000%) hue-rotate(190deg);
+}
+
+.comment-action span {
+  font-size: 12px;
+  color: #606060;
+}
+
+.reply-btn {
   background: none;
   border: none;
   font-size: 12px;
-  font-weight: 500;
-  color: #606060;
+  font-weight: 600;
   cursor: pointer;
-  margin-left: 15px;
-  border-radius: 12px;
-  padding: 5px 10px;
+  color: #606060;
+  padding: 4px 8px;
 }
 
-.comment-action .reply-btn:hover {
-  background: #f0f0f0;
+.local-reply {
+  margin-left: 50px;
+  padding-left: 10px;
+  border-left: 2px solid #e5e5e5;
+}
+
+.delete-comment {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.delete-comment:hover {
+  color: #f00;
+}
+
+/* =========================================================
+   6. RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .playvideo-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .main-content {
+    max-width: 100%;
+  }
+
+  .recommended-section {
+    flex: none;
+    width: 100%;
+    max-height: none;
+  }
+
+  .video-actions {
+    flex-wrap: wrap;
+  }
+
+  .video-actions span {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .video-actions img {
+    width: 16px;
+    height: 16px;
+  }
 }
