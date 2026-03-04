@@ -175,6 +175,27 @@
   transform: scale(1.1);
 }
 
+.active-like {
+  color: #065fd4 !important;
+  /* YouTube Blue */
+}
+
+.active-dislike {
+  color: #0f0f0f !important;
+}
+
+.active-save {
+  color: #065fd4 !important;
+}
+
+.active-like img {
+  filter: invert(30%) sepia(80%) saturate(2000%) hue-rotate(190deg);
+}
+
+.active-save img {
+  filter: invert(28%) sepia(90%) saturate(1600%) hue-rotate(195deg);
+}
+
 
 /* =========================================================
    PUBLISHER (Channel Info + Subscribe Button)
@@ -238,6 +259,68 @@
   border-radius: 8px;
   padding: 16px;
   margin: -16px 0;
+}
+
+/* =========================================================
+   ADD COMMENT SECTION
+   ========================================================= */
+.add-comment-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin: 20px 0 30px;
+}
+
+.user-profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.add-comment-section form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.add-comment-section form:focus-within {
+  border-color: #0f0f0f;
+}
+
+.add-comment-section input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 5px 0;
+}
+
+.add-comment-section button {
+  background: none;
+  border: none;
+  color: #606060;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.add-comment-section button.active {
+  color: #065fd4;
+  background: #f0f0f0;
+}
+
+.add-comment-section button:hover.active {
+  background: #e5e5e5;
 }
 
 
