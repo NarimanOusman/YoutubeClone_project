@@ -54,6 +54,12 @@ img {
 }
 
 @media (max-width: 900px) {
+  .container.video-page {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 60px;
+    /* Closer to the top on mobile */
+  }
 
   .container,
   .large-container {

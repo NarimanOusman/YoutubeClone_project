@@ -4,8 +4,9 @@
 .playvideo-container {
   display: flex;
   gap: 6px;
-  
-  min-height: calc(100vh - 70px); /* Full height minus navbar */
+
+  min-height: calc(100vh - 70px);
+  /* Full height minus navbar */
   background-color: #f9f9f9;
   box-sizing: border-box;
 }
@@ -18,7 +19,8 @@
 
 /* RIGHT: Recommended Videos */
 .recommended-section {
-  flex: 0 0 25%; /* 25% width */
+  flex: 0 0 25%;
+  /* 25% width */
   background: white;
   padding: 12px;
   border-radius: 10px;
@@ -35,7 +37,7 @@
   width: 100%;
   height: 60vh;
   border-radius: 2px;
-  
+
 
   display: block;
   margin-bottom: 16px;
@@ -209,7 +211,7 @@
   flex-shrink: 0;
 }
 
-.comment > div {
+.comment>div {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -271,7 +273,9 @@
 @media (max-width: 900px) {
   .playvideo-container {
     flex-direction: column;
-    padding: 10px;
+    padding: 0;
+    /* Remove horizontal padding to make video full width */
+    gap: 0;
   }
 
   .main-content {
@@ -281,24 +285,83 @@
   .recommended-section {
     flex: none;
     max-width: 100%;
-    max-height: 400px;
+    max-height: none;
+    padding: 15px;
   }
 
   .video-player {
-    height: 45vh;
+    height: 56.25vw;
+    /* Perfectly maintain 16:9 ratio on full-width mobile */
+    border-radius: 0;
+    margin-bottom: 10px;
+  }
+
+  .video-content {
+    padding: 0 12px;
+    /* Move content to the left by reducing padding */
+  }
+
+  .video-content.expanded,
+  .video-content.collapsed {
+    padding-left: 12px;
+  }
+
+  .video-content h3 {
+    font-size: 16px;
+    /* Optimized size for mobile */
+    line-height: 1.4;
+    font-weight: 500;
+    margin-top: 5px;
+  }
+
+  .playvideo_info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .playvideo_info p {
+    font-size: 13px;
+    color: #606060;
+  }
+
+  .video-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 15px;
+    flex-wrap: wrap;
+    /* Prevent icons from overlapping or disappearing */
+  }
+
+  .video-actions span {
+    font-size: 13px;
+  }
+
+  .publisher {
+    padding: 12px 0;
   }
 
   .publisher:hover {
-    padding: 16px;
-    margin: -16px;
+    padding: 12px 0;
+    margin: 0;
+    background: transparent;
+  }
+
+  .comment img {
+    width: 35px;
+    height: 35px;
   }
 }
 
 .playvideo-container iframe {
   width: 100%;
-  height: 37vw;
+  height: 100%;
+  /* Use container height */
   border: none;
 }
- h4{
+
+h4 {
   margin-top: 6px;
- }
+}

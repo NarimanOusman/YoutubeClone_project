@@ -8,3 +8,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_YOUTUBE_API_KEY
+        sync: false
