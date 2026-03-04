@@ -32,18 +32,23 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
 
   const navigate = useNavigate();
 
-  // Navigation Logic
+  // 1. Video Navigation Logic (Improved matching)
   const handleNavigate = (direction) => {
     if (videoQueue.length === 0) return;
-    const currentIndex = videoQueue.findIndex((item) => item.id === videoId || item.id?.videoId === videoId);
+    const currentIndex = videoQueue.findIndex((item) => {
+      const id = typeof item.id === "string" ? item.id : item.id.videoId;
+      return id === videoId;
+    });
+
     if (currentIndex === -1) return;
     let nextIndex = direction === "next" ? (currentIndex + 1) % videoQueue.length : (currentIndex - 1 + videoQueue.length) % videoQueue.length;
+
     const nextVideo = videoQueue[nextIndex];
-    const nextVideoId = nextVideo.id.videoId || nextVideo.id;
+    const nextVideoId = typeof nextVideo.id === "string" ? nextVideo.id : nextVideo.id.videoId;
     navigate(`/video/${categoryId}/${nextVideoId}`);
   };
 
-  // Interaction Handlers
+  // 2. Like/Dislike Video Handlers
   const handleLike = () => {
     setIsLiked(!isLiked);
     if (isDisliked) setIsDisliked(false);
@@ -68,12 +73,18 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     }
   };
 
-  // 1. Saved Videos Logic
-  const isSaved = savedVideos?.some(v => (v.id === videoId || v.id?.videoId === videoId));
+  // 3. Saved Videos Logic (Fixed)
+  const isSaved = savedVideos?.some(v => {
+    const vId = typeof v.id === "string" ? v.id : v.id?.videoId;
+    return vId === videoId;
+  });
 
   const handleSave = () => {
     if (isSaved) {
-      setSavedVideos(savedVideos.filter(v => (v.id !== videoId && v.id?.videoId !== videoId)));
+      setSavedVideos(savedVideos.filter(v => {
+        const vId = typeof v.id === "string" ? v.id : v.id?.videoId;
+        return vId !== videoId;
+      }));
     } else {
       setSavedVideos([...savedVideos, apiData]);
     }
@@ -83,12 +94,13 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     setIsSubscribed(!isSubscribed);
   };
 
-  // Comment Handlers
+  // 4. Comment Handlers
   const handleAddComment = (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     const myComment = {
+      id: "local-" + Date.now(),
       snippet: {
         topLevelComment: {
           snippet: {
@@ -100,8 +112,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           }
         }
       },
-      isLocal: true,
-      id: "local-" + Date.now()
+      isLocal: true
     };
 
     setLocalComments([myComment, ...localComments]);
@@ -161,6 +172,12 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     if (videoId) fetchComments();
   }, [videoId]);
 
+  // Helper for numeric displays to ensure a change is visible
+  const getDisplayCount = (base, active) => {
+    const num = Number(base) || 0;
+    return value_convertor(active ? num + 1 : num);
+  };
+
   return (
     <div className="playvideo-container">
       <div className="main-content">
@@ -184,7 +201,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
             <div className="video-actions">
               <span onClick={handleLike} className={isLiked ? "active-like" : ""}>
                 <img src={like_icon} alt="" />
-                {apiData?.statistics?.likeCount ? value_convertor(parseInt(apiData.statistics.likeCount) + (isLiked ? 1 : 0)) : "0"}
+                {getDisplayCount(apiData?.statistics?.likeCount, isLiked)}
               </span>
               <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}>
                 <img src={dislike_icon} alt="" />
@@ -246,7 +263,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
                       onClick={() => handleCommentInteraction(commentId, "like")}
                       alt=""
                     />
-                    <span>{value_convertor(parseInt(snippet.likeCount) + (interaction.liked ? 1 : 0))}</span>
+                    <span>{getDisplayCount(snippet.likeCount, interaction.liked)}</span>
                     <img
                       src={dislike_icon}
                       className={`comment-dislike ${interaction.disliked ? "active" : ""}`}

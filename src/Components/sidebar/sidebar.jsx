@@ -1,5 +1,5 @@
 import React from "react";
-import "./sidebar.css"; // Assuming you have a CSS file for styling
+import "./sidebar.css";
 import {
   House,
   Gamepad2,
@@ -8,21 +8,24 @@ import {
   Tv,
   Laptop,
   Headphones,
-  Newspaper, // ✅ Correct name
+  Newspaper,
   Rss,
-  TvMinimalPlay,
-  Clock, // Added for Watch Later
+  Clock,
 } from "lucide-react";
 import jack from "../../assets/jack.png";
 import tom from "../../assets/tom.png";
 import simon from "../../assets/simon.png";
 import megan from "../../assets/megan.png";
 import cameron from "../../assets/cameron.png";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
+  const navigate = useNavigate();
+
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
-    if (setSearchQuery) setSearchQuery(""); // Clear search when switching categories
+    if (setSearchQuery) setSearchQuery("");
+    navigate("/");
   };
 
   return (
