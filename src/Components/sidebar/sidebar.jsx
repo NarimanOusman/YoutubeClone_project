@@ -18,15 +18,21 @@ import tom from "../../assets/tom.png";
 import simon from "../../assets/simon.png";
 import megan from "../../assets/megan.png";
 import cameron from "../../assets/cameron.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
     if (setSearchQuery) setSearchQuery("");
-    navigate("/");
+
+    // Always navigate to home for "Watch Later" to show the full saved grid.
+    // For other categories, stay on video page to only update recommendations.
+    if (newCategory === "saved" || !location.pathname.startsWith("/video")) {
+      navigate("/");
+    }
   };
 
   return (

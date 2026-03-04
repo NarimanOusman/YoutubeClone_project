@@ -4,20 +4,26 @@ import "./recommended.css";
 import { API_KEY } from "../../data";
 import { Link } from "react-router-dom";
 
-const Recommended = ({ categoryId, setQueue }) => {
+const Recommended = ({ categoryId, setQueue, savedVideos }) => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
+    if (categoryId === "saved") {
+      setApiData(savedVideos || []);
+      if (setQueue) setQueue(savedVideos || []);
+      setLoading(false);
+      return;
+    }
+
     try {
       const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=15`;
-
       const response = await fetch(relatedVideo_url);
       const data = await response.json();
 
       if (data.items) {
         setApiData(data.items);
-        if (setQueue) setQueue(data.items); // Share the list with parent
+        if (setQueue) setQueue(data.items);
       }
       setLoading(false);
     } catch (error) {
@@ -30,7 +36,7 @@ const Recommended = ({ categoryId, setQueue }) => {
     if (categoryId) {
       fetchData();
     }
-  }, [categoryId]);
+  }, [categoryId, savedVideos]);
 
   if (loading) {
     return <div className="recommended">Loading recommended videos...</div>;

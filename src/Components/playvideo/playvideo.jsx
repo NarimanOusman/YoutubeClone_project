@@ -1,7 +1,7 @@
 // PlayVideo.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "./playvideo.css";
-import { ChevronLeft, ChevronRight, Send, Trash2, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Trash2, Image as ImageIcon, X, Download, AlertCircle, Bookmark, CheckCircle } from "lucide-react";
 import like_icon from "../../assets/like.png";
 import dislike_icon from "../../assets/dislike.png";
 import share_icon from "../../assets/share.png";
@@ -20,26 +20,34 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
   const [commentsData, setCommentsData] = useState([]);
   const [videoQueue, setVideoQueue] = useState([]);
 
-  // Interactive States
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [localComments, setLocalComments] = useState([]);
+  const [localReplies, setLocalReplies] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [commentInteractions, setCommentInteractions] = useState({});
 
-  const fileInputRef = useRef(null);
+  // Professional Modal State
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "",
+    onConfirm: null,
+    type: "default"
+  });
+
+  const mainFileInputRef = useRef(null);
+  const replyFileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Navigation Logic
   const handleNavigate = (direction) => {
     if (videoQueue.length === 0) return;
-    const currentIndex = videoQueue.findIndex((item) => {
-      const id = typeof item.id === "string" ? item.id : item.id.videoId;
-      return id === videoId;
-    });
+    const currentIndex = videoQueue.findIndex(item => (typeof item.id === "string" ? item.id : item.id.videoId) === videoId);
     if (currentIndex === -1) return;
     let nextIndex = direction === "next" ? (currentIndex + 1) % videoQueue.length : (currentIndex - 1 + videoQueue.length) % videoQueue.length;
     const nextVideo = videoQueue[nextIndex];
@@ -47,31 +55,79 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     navigate(`/video/${categoryId}/${nextVideoId}`);
   };
 
-  // Video Like/Dislike
   const handleLike = () => {
     setIsLiked(!isLiked);
     if (isDisliked) setIsDisliked(false);
   };
+
   const handleDislike = () => {
     setIsDisliked(!isDisliked);
     if (isLiked) setIsLiked(false);
   };
 
-  // Saved Videos
-  const isSaved = savedVideos?.some(v => {
-    const vId = typeof v.id === "string" ? v.id : v.id?.videoId;
-    return vId === videoId;
-  });
-  const handleSave = () => {
+  const isSaved = savedVideos?.some(v => (typeof v.id === "string" ? v.id : v.id?.videoId) === videoId);
+
+  const handleSaveAction = () => {
     if (isSaved) {
-      setSavedVideos(savedVideos.filter(v => (typeof v.id === "string" ? v.id : v.id?.videoId) !== videoId));
+      setModal({
+        isOpen: true,
+        title: "Remove from Saved?",
+        message: "This video will be removed from your Watch Later list.",
+        confirmText: "Remove",
+        type: "warning",
+        onConfirm: () => {
+          setSavedVideos(savedVideos.filter(v => (typeof v.id === "string" ? v.id : v.id?.videoId) !== videoId));
+          setModal({ ...modal, isOpen: false });
+        }
+      });
     } else {
-      setSavedVideos([...savedVideos, apiData]);
+      setModal({
+        isOpen: true,
+        title: "Save Video?",
+        message: "Add this video to your Watch Later list for viewing later.",
+        confirmText: "Save",
+        type: "success",
+        onConfirm: () => {
+          setSavedVideos([...savedVideos, apiData]);
+          setModal({ ...modal, isOpen: false });
+        }
+      });
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files?.[0]) {
+  const deleteCommentAction = (commentId) => {
+    setModal({
+      isOpen: true,
+      title: "Delete Comment?",
+      message: "This action cannot be undone. Your comment will be permanently removed.",
+      confirmText: "Delete",
+      type: "danger",
+      onConfirm: () => {
+        setLocalComments(localComments.filter(c => c.id !== commentId));
+        setModal({ ...modal, isOpen: false });
+      }
+    });
+  };
+
+  const deleteReplyAction = (parentId, replyId) => {
+    setModal({
+      isOpen: true,
+      title: "Delete Reply?",
+      message: "Are you sure you want to remove your reply to this conversation?",
+      confirmText: "Remove",
+      type: "danger",
+      onConfirm: () => {
+        setLocalReplies(prev => ({
+          ...prev,
+          [parentId]: prev[parentId].filter(r => r.id !== replyId)
+        }));
+        setModal({ ...modal, isOpen: false });
+      }
+    });
+  };
+
+  const onFileSelect = (e) => {
+    if (e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile({
         url: URL.createObjectURL(file),
@@ -80,10 +136,11 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     }
   };
 
-  const postComment = (e) => {
+  const submitComment = (e) => {
     e.preventDefault();
     if (!newComment.trim() && !selectedFile) return;
 
+    const timestamp = new Date().toISOString();
     const myComment = {
       id: "local-" + Date.now(),
       snippet: {
@@ -92,27 +149,28 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
             authorDisplayName: "You",
             authorProfileImageUrl: profile_pic,
             textDisplay: newComment,
-            publishedAt: new Date().toISOString(),
+            publishedAt: timestamp,
             likeCount: 0
           }
         }
       },
       media: selectedFile,
-      isLocal: true,
-      replies: []
+      isLocal: true
     };
 
     if (replyingTo) {
-      setLocalComments(prev => prev.map(c =>
-        c.id === replyingTo ? { ...c, replies: [...(c.replies || []), myComment] } : c
-      ));
+      const parentId = replyingTo.id;
+      setLocalReplies(prev => ({
+        ...prev,
+        [parentId]: [...(prev[parentId] || []), myComment]
+      }));
+      setReplyingTo(null);
     } else {
       setLocalComments([myComment, ...localComments]);
     }
 
     setNewComment("");
     setSelectedFile(null);
-    setReplyingTo(null);
   };
 
   const handleCommentInteraction = (commentId, type) => {
@@ -127,47 +185,47 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
   };
 
   useEffect(() => {
-    const getting = async () => {
+    const fetchMain = async () => {
       try {
-        const videoDetail_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`;
-        const response = await fetch(videoDetail_url);
+        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${API_KEY}`);
         const data = await response.json();
         if (data.items?.length) setApiData(data.items[0]);
-      } catch (error) { console.error("Fetch error:", error); }
+        setIsLiked(false);
+        setIsDisliked(false);
+      } catch (err) { console.error(err); }
     };
-    if (videoId) getting();
+    if (videoId) fetchMain();
   }, [videoId]);
 
   useEffect(() => {
-    const fetchOtherData = async () => {
+    const fetchChannel = async () => {
       try {
-        const channelId = apiData.snippet.channelId;
-        const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`;
-        const response = await fetch(channelData_url);
+        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${apiData.snippet.channelId}&key=${API_KEY}`);
         const data = await response.json();
         if (data.items?.length) setChannelData(data.items[0]);
-      } catch (error) { console.error("Error fetching channel data:", error); }
+      } catch (err) { console.error(err); }
     };
-    if (apiData?.snippet?.channelId) fetchOtherData();
+    if (apiData?.snippet?.channelId) fetchChannel();
   }, [apiData]);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}&maxResults=20&order=relevance`;
-        const response = await fetch(comment_url);
+        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}&maxResults=15`);
         const data = await response.json();
         setCommentsData(data.items || []);
         setLocalComments([]);
-      } catch (error) { console.error("Error fetching comments:", error); }
+        setLocalReplies({});
+      } catch (err) { console.error(err); }
     };
     if (videoId) fetchComments();
   }, [videoId]);
 
-  const getDisplayCount = (base, active) => {
-    const num = Number(base) || 0;
-    if (!active) return value_convertor(num);
-    return value_convertor(num + 1);
+  const getLikeDisplay = (base, active) => {
+    const num = parseInt(base) || 0;
+    const total = active ? num + 1 : num;
+    if (total < 10000) return total.toLocaleString();
+    return active ? total.toLocaleString() : value_convertor(num);
   };
 
   return (
@@ -175,8 +233,8 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
       <div className="main-content">
         <div className="player-wrapper">
           <iframe className="video-player" src={`https://www.youtube.com/embed/${videoId}?autoplay=1`} title="Video" frameBorder="0" allowFullScreen></iframe>
-          <button className="nav-arrow prev" onClick={() => handleNavigate("prev")}><ChevronLeft size={35} color="white" /></button>
-          <button className="nav-arrow next" onClick={() => handleNavigate("next")}><ChevronRight size={35} color="white" /></button>
+          <button className="nav-arrow prev" onClick={() => handleNavigate("prev")}><ChevronLeft color="white" /></button>
+          <button className="nav-arrow next" onClick={() => handleNavigate("next")}><ChevronRight color="white" /></button>
         </div>
 
         <div className="video-content">
@@ -184,42 +242,31 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           <div className="playvideo_info">
             <p>{apiData?.statistics?.viewCount ? value_convertor(parseInt(apiData.statistics.viewCount)) : "0"} views &bull; {apiData?.snippet?.publishedAt ? moment(apiData.snippet.publishedAt).fromNow() : ""}</p>
             <div className="video-actions">
-              <span onClick={handleLike} className={isLiked ? "active-like" : ""}><img src={like_icon} alt="" /> {getDisplayCount(apiData?.statistics?.likeCount, isLiked)}</span>
-              <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}><img src={dislike_icon} alt="" /></span>
-              <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }}><img src={share_icon} alt="" /> Share</span>
-              <span onClick={handleSave} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
+              <span onClick={handleSaveAction} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
+              <span onClick={handleLike} className={isLiked ? "active-like" : ""}><img src={like_icon} alt="" /> {getLikeDisplay(apiData?.statistics?.likeCount, isLiked)}</span>
+              <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}><img src={dislike_icon} alt="" /> {isDisliked ? "Disliked" : "Dislike"}</span>
+              <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }}><img src={share_icon} alt="" /> Share</span>
             </div>
           </div>
           <hr />
           <div className="publisher">
             <img src={channelData?.snippet?.thumbnails?.high?.url || jack} alt="" />
-            <div>
-              <p>{apiData?.snippet?.channelTitle}</p>
-              <span>{channelData?.statistics?.subscriberCount ? value_convertor(parseInt(channelData.statistics.subscriberCount)) : "0"} subscribers</span>
-            </div>
-            <button onClick={() => setIsSubscribed(!isSubscribed)} className={isSubscribed ? "subscribed" : ""}>
-              {isSubscribed ? "Subscribed" : "Subscribe"}
-            </button>
+            <div><p>{apiData?.snippet?.channelTitle}</p><span>{channelData?.statistics?.subscriberCount ? value_convertor(parseInt(channelData.statistics.subscriberCount)) : "0"} subscribers</span></div>
+            <button onClick={() => setIsSubscribed(!isSubscribed)} className={isSubscribed ? "subscribed" : ""}>{isSubscribed ? "Subscribed" : "Subscribe"}</button>
           </div>
           <div className="description"><p>{apiData?.snippet?.description?.slice(0, 250)}...</p></div>
           <hr />
 
           <div className="add-comment-section">
             <img src={profile_pic} alt="" className="user-profile-img" />
-            <form onSubmit={postComment}>
+            <form onSubmit={submitComment}>
               <div className="input-group">
-                {replyingTo && <span className="reply-tag">Replying... <button onClick={() => setReplyingTo(null)}>×</button></span>}
-                <input type="text" placeholder={replyingTo ? "Add a reply..." : "Add a comment..."} value={newComment} onChange={(e) => setNewComment(e.target.value)} />
-                <input type="file" hidden ref={fileInputRef} accept="image/*,video/*" onChange={handleFileChange} />
-                <button type="button" className="icon-btn" onClick={() => fileInputRef.current?.click()}><ImageIcon size={20} /></button>
+                <input type="text" placeholder="Add a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+                <button type="button" className="icon-btn" onClick={() => mainFileInputRef.current?.click()}><ImageIcon size={20} /></button>
                 <button type="submit" className={newComment.trim() || selectedFile ? "active" : ""}><Send size={18} /></button>
               </div>
-              {selectedFile && (
-                <div className="preview-container">
-                  <button className="remove-preview" onClick={() => setSelectedFile(null)}>×</button>
-                  {selectedFile.type === "image" ? <img src={selectedFile.url} alt="" /> : <video src={selectedFile.url} muted />}
-                </div>
-              )}
+              <input type="file" hidden ref={mainFileInputRef} accept="image/*,video/*" onChange={onFileSelect} />
+              {selectedFile && !replyingTo && <div className="preview-container"><button className="remove-preview" onClick={() => setSelectedFile(null)}><X size={12} /></button>{selectedFile.type === "image" ? <img src={selectedFile.url} alt="" /> : <video src={selectedFile.url} muted />}</div>}
             </form>
           </div>
 
@@ -233,36 +280,101 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
             return (
               <div key={commentId} className="comment-block">
                 <div className={`comment ${item.isLocal ? "is-local" : ""}`}>
-                  <img src={snippet.authorProfileImageUrl} alt="" />
+                  <img src={snippet.authorProfileImageUrl || profile_pic} alt="" />
                   <div className="comment-body">
                     <h3><span>{snippet.authorDisplayName} <small>{moment(snippet.publishedAt).fromNow()}</small></span>
-                      {item.isLocal && <button className="delete-comment" onClick={() => setLocalComments(localComments.filter(c => c.id !== commentId))}><Trash2 size={16} /></button>}
+                      {item.isLocal && <button className="delete-comment" onClick={() => deleteCommentAction(commentId)}><Trash2 size={16} /></button>}
                     </h3>
                     <p>{snippet.textDisplay}</p>
-                    {item.media && <div className="comment-media">{item.media.type === "image" ? <img src={item.media.url} alt="" /> : <video src={item.media.url} controls />}</div>}
+                    {item.media && <div className="comment-media"><img src={item.media.url} onClick={() => setSelectedImage(item.media.url)} alt="" /></div>}
                     <div className="comment-action">
-                      <img src={like_icon} className={`comment-like ${interaction.liked ? "active" : ""}`} onClick={() => handleCommentInteraction(commentId, "like")} alt="" />
-                      <span>{getDisplayCount(snippet.likeCount || 0, interaction.liked)}</span>
-                      <img src={dislike_icon} className={`comment-dislike ${interaction.disliked ? "active" : ""}`} onClick={() => handleCommentInteraction(commentId, "dislike")} alt="" />
-                      <button className="reply-btn" onClick={() => setReplyingTo(commentId)}>Reply</button>
+                      <img src={like_icon} className={interaction.liked ? "active-like" : ""} onClick={() => handleCommentInteraction(commentId, "like")} alt="" />
+                      <span>{getLikeDisplay(snippet.likeCount || 0, interaction.liked)}</span>
+                      <img src={dislike_icon} className={interaction.disliked ? "active-dislike" : ""} onClick={() => handleCommentInteraction(commentId, "dislike")} alt="" />
+                      <button className="reply-btn" onClick={() => setReplyingTo(item)}>Reply</button>
                     </div>
                   </div>
                 </div>
-                {item.replies?.map(reply => (
-                  <div key={reply.id} className="comment local-reply">
-                    <img src={reply.snippet.topLevelComment.snippet.authorProfileImageUrl} alt="" />
-                    <div className="comment-body">
-                      <h3>{reply.snippet.topLevelComment.snippet.authorDisplayName} <small>{moment(reply.snippet.publishedAt).fromNow()}</small></h3>
-                      <p>{reply.snippet.topLevelComment.snippet.textDisplay}</p>
+                {localReplies[commentId]?.map(r => {
+                  const rSnippet = r.snippet.topLevelComment.snippet;
+                  return (
+                    <div key={r.id} className="comment local-reply">
+                      <img src={profile_pic} alt="" />
+                      <div className="comment-body">
+                        <h3>
+                          <span>You <small>{moment(rSnippet.publishedAt).fromNow()}</small></span>
+                          <button className="delete-comment" onClick={() => deleteReplyAction(commentId, r.id)}><Trash2 size={16} /></button>
+                        </h3>
+                        <p>{rSnippet.textDisplay}</p>
+                        {r.media && <div className="comment-media"><img src={r.media.url} onClick={() => setSelectedImage(r.media.url)} alt="" /></div>}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })}
         </div>
       </div>
-      <div className="recommended-section"><Recommended categoryId={categoryId} setQueue={setVideoQueue} /></div>
+      <div className="recommended-section"><Recommended categoryId={categoryId} setQueue={setVideoQueue} savedVideos={savedVideos} /></div>
+
+      {/* CUSTOM PROFESSIONAL CONFIRMATION MODAL */}
+      {modal.isOpen && (
+        <div className="modal-overlay" onClick={() => setModal({ ...modal, isOpen: false })}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className={`modal-icon-header ${modal.type}`}>
+              {modal.type === "danger" && <AlertCircle size={32} />}
+              {modal.type === "warning" && <Bookmark size={32} />}
+              {modal.type === "success" && <CheckCircle size={32} />}
+            </div>
+            <h2>{modal.title}</h2>
+            <p>{modal.message}</p>
+            <div className="modal-btn-group">
+              <button className="modal-btn-cancel" onClick={() => setModal({ ...modal, isOpen: false })}>Cancel</button>
+              <button className={`modal-btn-confirm ${modal.type}`} onClick={() => modal.onConfirm()}>
+                {modal.confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REPLY DRAWER */}
+      {replyingTo && (
+        <div className="reply-drawer-overlay" onClick={() => { setReplyingTo(null); setSelectedFile(null); }}>
+          <div className="reply-drawer" onClick={e => e.stopPropagation()}>
+            <div className="reply-drawer-header">
+              <h3>Replying to {replyingTo.snippet?.topLevelComment?.snippet?.authorDisplayName || "this comment"}</h3>
+              <X cursor="pointer" onClick={() => { setReplyingTo(null); setSelectedFile(null); }} />
+            </div>
+            <div className="add-comment-section drawer-input">
+              <img src={profile_pic} alt="" className="user-profile-img" />
+              <form onSubmit={submitComment}>
+                <div className="input-group">
+                  <input autoFocus type="text" placeholder="Add a reply..." value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+                  <button type="button" className="icon-btn drawer-btn" onClick={() => replyFileInputRef.current?.click()}><ImageIcon size={20} /></button>
+                  <button type="submit" className={newComment.trim() || selectedFile ? "active" : ""}><Send size={18} /></button>
+                </div>
+                <input type="file" hidden ref={replyFileInputRef} accept="image/*,video/*" onChange={onFileSelect} />
+                {selectedFile && <div className="preview-container"><button className="remove-preview" onClick={() => setSelectedFile(null)}><X size={12} /></button>{selectedFile.type === "image" ? <img src={selectedFile.url} alt="" /> : <video src={selectedFile.url} muted />}</div>}
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX */}
+      {selectedImage && (
+        <div className="lightbox" onClick={() => setSelectedImage(null)}>
+          <div className="lightbox-actions">
+            <a href={selectedImage} download="vidtube-image.jpg" onClick={e => e.stopPropagation()}>
+              <button><Download size={22} /></button>
+            </a>
+            <button onClick={() => setSelectedImage(null)}><X size={22} /></button>
+          </div>
+          <img src={selectedImage} onClick={e => e.stopPropagation()} alt="" />
+        </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,7 @@ const Video = ({ sidebar, category, savedVideos, setSavedVideos }) => {
       <PlayVideo
         sidebar={sidebar}
         videoId={videoId}
-        categoryId={category !== "0" && category !== "saved" ? category : categoryId}
+        categoryId={category !== "0" ? category : categoryId}
         savedVideos={savedVideos}
         setSavedVideos={setSavedVideos}
       />
