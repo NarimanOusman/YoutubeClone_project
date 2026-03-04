@@ -11,6 +11,7 @@ import {
   Newspaper,
   Rss,
   Clock,
+  Image,
 } from "lucide-react";
 import jack from "../../assets/jack.png";
 import tom from "../../assets/tom.png";
