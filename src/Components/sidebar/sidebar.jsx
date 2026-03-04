@@ -11,6 +11,7 @@ import {
   Newspaper, // ✅ Correct name
   Rss,
   TvMinimalPlay,
+  Clock, // Added for Watch Later
 } from "lucide-react";
 import jack from "../../assets/jack.png";
 import tom from "../../assets/tom.png";
@@ -96,6 +97,14 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
       >
         <Newspaper size={24} />
         <p>News</p>
+      </div>
+      <hr />
+      <div
+        className={`sidelink ${category === "saved" ? "active" : ""}`}
+        onClick={() => handleCategoryChange("saved")}
+      >
+        <Clock size={24} />
+        <p>Watch Later</p>
       </div>
       <hr />
       <div className="subscribers">

@@ -10,9 +10,20 @@ const App = () => {
   const [sidebar, setSidebar] = useState(window.innerWidth > 900);
   const [category, setCategory] = useState("0");
   const [searchQuery, setSearchQuery] = useState("");
-  const location = useLocation();
 
+  // Persistence for Saved Videos
+  const [savedVideos, setSavedVideos] = useState(() => {
+    const saved = localStorage.getItem("savedVideos");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const location = useLocation();
   const isVideoPage = location.pathname.startsWith("/video");
+
+  // Update localStorage when savedVideos changes
+  useEffect(() => {
+    localStorage.setItem("savedVideos", JSON.stringify(savedVideos));
+  }, [savedVideos]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
@@ -25,10 +36,7 @@ const App = () => {
 
   return (
     <>
-      {/* ✅ Navbar only needs setSidebar */}
       <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
-
-      {/* ✅ Sidebar needs sidebar, category, and setCategory */}
       <Sidebar
         sidebar={sidebar}
         category={category}
@@ -36,11 +44,10 @@ const App = () => {
         setSearchQuery={setSearchQuery}
       />
 
-      {/* Main Content */}
       <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
         <Routes>
-          <Route path="/" element={<Home category={category} searchQuery={searchQuery} />} />
-          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} />} />
+          <Route path="/" element={<Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />} />
+          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} />} />
         </Routes>
       </div>
     </>
