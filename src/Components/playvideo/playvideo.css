@@ -1,6 +1,8 @@
 /* =========================================================
    MAIN LAYOUT: Video + Recommended Side by Side
    ========================================================= */
+
+
 .playvideo-container {
   display: flex;
   gap: 6px;
@@ -35,10 +37,11 @@
    ========================================================= */
 .video-player {
   width: 100%;
-  height: 60vh;
-  border-radius: 2px;
-
-
+  height: 80vh;
+  /* Increased from 75vh for a more cinematic desktop experience */
+  border-radius: 4px;
+  background: black;
+  /* Shows black while loading instead of white */
   display: block;
   margin-bottom: 16px;
 }
