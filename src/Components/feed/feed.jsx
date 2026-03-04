@@ -7,8 +7,10 @@ import moment from "moment";
 
 const feed = ({ category, searchQuery }) => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
+    setLoading(true);
     if (!API_KEY) {
       console.error("YouTube API Key is missing! Please set VITE_YOUTUBE_API_KEY in your .env file (local) or Render dashboard (live).");
       return;
@@ -34,6 +36,8 @@ const feed = ({ category, searchQuery }) => {
       setData(data.items || []);
     } catch (error) {
       console.error("Fetch error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,7 +46,11 @@ const feed = ({ category, searchQuery }) => {
   }, [category, searchQuery]);
   return (
     <div className="feed">
-      {data.length === 0 ? (
+      {loading ? (
+        <div className="loading-state">
+          <h2>Loading videos...</h2>
+        </div>
+      ) : data.length === 0 ? (
         <div className="no-videos">
           <h2>No videos found.</h2>
           {!API_KEY && <p style={{ color: 'red' }}>Error: YouTube API Key is missing. Please check your environment variables.</p>}
