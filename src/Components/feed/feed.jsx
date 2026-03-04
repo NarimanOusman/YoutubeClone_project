@@ -9,6 +9,11 @@ const feed = ({ category, searchQuery }) => {
   const [data, setData] = useState([]);
 
   const fetchData = async () => {
+    if (!API_KEY) {
+      console.error("YouTube API Key is missing! Please set VITE_YOUTUBE_API_KEY in your .env file (local) or Render dashboard (live).");
+      return;
+    }
+
     let url = "";
 
     if (searchQuery) {
@@ -37,32 +42,40 @@ const feed = ({ category, searchQuery }) => {
   }, [category, searchQuery]);
   return (
     <div className="feed">
-      {data.map((item, index) => {
-        const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
-        const categoryId = item.snippet.categoryId || "0";
-        const viewCount = item.statistics ? value_convertor(item.statistics.viewCount) : "---";
+      {data.length === 0 ? (
+        <div className="no-videos">
+          <h2>No videos found.</h2>
+          {!API_KEY && <p style={{ color: 'red' }}>Error: YouTube API Key is missing. Please check your environment variables.</p>}
+          {API_KEY && <p>If this persists, try checking your internet connection or API quota.</p>}
+        </div>
+      ) : (
+        data.map((item, index) => {
+          const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
+          const categoryId = item.snippet.categoryId || "0";
+          const viewCount = item.statistics ? value_convertor(item.statistics.viewCount) : "---";
 
-        return (
-          <Link
-            to={`/video/${categoryId}/${videoId}`}
-            className="card-link"
-            key={index}
-          >
-            <div className="card">
-              <img
-                src={item.snippet.thumbnails.medium.url}
-                alt={item.snippet.title}
-              />
-              <h2>{item.snippet.title}</h2>
-              <p1>{item.snippet.channelTitle}</p1>
-              <p>
-                {viewCount} views &bull;{" "}
-                {moment(item.snippet.publishedAt).fromNow()}
-              </p>
-            </div>
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              to={`/video/${categoryId}/${videoId}`}
+              className="card-link"
+              key={index}
+            >
+              <div className="card">
+                <img
+                  src={item.snippet.thumbnails.medium.url}
+                  alt={item.snippet.title}
+                />
+                <h2>{item.snippet.title}</h2>
+                <p1>{item.snippet.channelTitle}</p1>
+                <p>
+                  {viewCount} views &bull;{" "}
+                  {moment(item.snippet.publishedAt).fromNow()}
+                </p>
+              </div>
+            </Link>
+          );
+        })
+      )}
     </div>
   );
 };
