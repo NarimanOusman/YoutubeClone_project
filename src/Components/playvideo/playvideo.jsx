@@ -1,6 +1,7 @@
 // PlayVideo.jsx
 import React, { useState, useEffect } from "react";
 import "./playvideo.css";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import like from "../../assets/like.png";
 import dislike from "../../assets/dislike.png";
 import share from "../../assets/share.png";
@@ -10,13 +11,31 @@ import jack from "../../assets/jack.png";
 import Recommended from "../../Components/recommended/recommended";
 import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-const PlayVideo = ({ sidebar, videoId }) => {
-  const { categoryId } = useParams();
+const PlayVideo = ({ sidebar, videoId, categoryId }) => {
   const [apiData, setApiData] = useState(null);
   const [channelData, setChannelData] = useState(null);
   const [commentsData, setCommentsData] = useState([]);
+  const [videoQueue, setVideoQueue] = useState([]);
+  const navigate = useNavigate();
+
+  // Navigation Logic
+  const handleNavigate = (direction) => {
+    if (videoQueue.length === 0) return;
+
+    const currentIndex = videoQueue.findIndex((item) => item.id === videoId);
+    let nextIndex;
+
+    if (direction === "next") {
+      nextIndex = (currentIndex + 1) % videoQueue.length;
+    } else {
+      nextIndex = (currentIndex - 1 + videoQueue.length) % videoQueue.length;
+    }
+
+    const nextVideo = videoQueue[nextIndex];
+    navigate(`/video/${categoryId}/${nextVideo.id}`);
+  };
 
   useEffect(() => {
     const getting = async () => {
@@ -27,8 +46,6 @@ const PlayVideo = ({ sidebar, videoId }) => {
 
         if (data.items?.length) {
           setApiData(data.items[0]);
-        } else {
-          console.error("Video not found:", data);
         }
       } catch (error) {
         console.error("Fetch error:", error);
@@ -58,7 +75,6 @@ const PlayVideo = ({ sidebar, videoId }) => {
     }
   }, [apiData]);
 
-  // ✅ Fetch comments inside useEffect
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -76,19 +92,30 @@ const PlayVideo = ({ sidebar, videoId }) => {
       fetchComments();
     }
   }, [videoId]);
+
   return (
     <div className="playvideo-container">
       {/* LEFT: Main Video Content */}
       <div className="main-content">
-        {/* Video Player */}
-        <iframe
-          className="video-player"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
+        {/* Video Player Wrapper */}
+        <div className="player-wrapper">
+          <iframe
+            className="video-player"
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+
+          {/* Navigation Arrows Overlay */}
+          <button className="nav-arrow prev" onClick={() => handleNavigate("prev")} aria-label="Previous video">
+            <ChevronLeft size={40} color="white" />
+          </button>
+          <button className="nav-arrow next" onClick={() => handleNavigate("next")} aria-label="Next video">
+            <ChevronRight size={40} color="white" />
+          </button>
+        </div>
 
         {/* Video Info Below */}
         <div className={`video-content ${sidebar ? "expanded" : "collapsed"}`}>
@@ -105,28 +132,21 @@ const PlayVideo = ({ sidebar, videoId }) => {
                 : "Unknown date"}
             </p>
             <div className="video-actions">
-              {/* Like with formatted count */}
               <span>
                 <img src={like} alt="like" />{" "}
                 {apiData?.statistics?.likeCount
                   ? value_convertor(parseInt(apiData.statistics.likeCount))
                   : "0"}
               </span>
-
-              {/* Dislike with formatted count */}
               <span>
                 <img src={dislike} alt="dislike" />{" "}
                 {apiData?.statistics?.dislikeCount
                   ? value_convertor(parseInt(apiData.statistics.dislikeCount))
                   : "0"}
               </span>
-
-              {/* Share */}
               <span>
                 <img src={share} alt="share" /> Share
               </span>
-
-              {/* Save */}
               <span>
                 <img src={save} alt="save" /> Save
               </span>
@@ -158,12 +178,10 @@ const PlayVideo = ({ sidebar, videoId }) => {
           </div>
 
           <div className="description">
-            <p>
-              <p className="description-text">
-                {apiData?.snippet?.description
-                  ? `${apiData.snippet.description.slice(0, 250)}...`
-                  : "No description available."}
-              </p>
+            <p className="description-text">
+              {apiData?.snippet?.description
+                ? `${apiData.snippet.description.slice(0, 250)}...`
+                : "No description available."}
             </p>
           </div>
 
@@ -208,7 +226,7 @@ const PlayVideo = ({ sidebar, videoId }) => {
 
       {/* RIGHT: Recommended Videos */}
       <div className="recommended-section">
-        <Recommended categoryId={categoryId} />
+        <Recommended categoryId={categoryId} setQueue={setVideoQueue} />
       </div>
     </div>
   );

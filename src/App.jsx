@@ -40,7 +40,7 @@ const App = () => {
       <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
         <Routes>
           <Route path="/" element={<Home category={category} searchQuery={searchQuery} />} />
-          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} />} />
+          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} />} />
         </Routes>
       </div>
     </>

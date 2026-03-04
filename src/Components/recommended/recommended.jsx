@@ -4,20 +4,20 @@ import "./recommended.css";
 import { API_KEY } from "../../data";
 import { Link } from "react-router-dom";
 
-const Recommended = ({ categoryId }) => {
+const Recommended = ({ categoryId, setQueue }) => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      // ✅ Fixed URL: removed HTTP/1.1, added proper encoding
-      const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=12`;
+      const relatedVideo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&videoCategoryId=${categoryId}&key=${API_KEY}&maxResults=15`;
 
       const response = await fetch(relatedVideo_url);
       const data = await response.json();
 
       if (data.items) {
         setApiData(data.items);
+        if (setQueue) setQueue(data.items); // Share the list with parent
       }
       setLoading(false);
     } catch (error) {
