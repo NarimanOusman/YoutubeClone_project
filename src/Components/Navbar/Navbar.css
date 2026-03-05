@@ -145,15 +145,18 @@ nav.collapsed {
   }
 
   .nav-middle {
-    order: 3;
-    /* Move to second row */
+    position: absolute;
+    top: 100%;
+    /* Placed exactly below the navbar */
+    left: 0;
     width: 100%;
     max-width: 100% !important;
-    padding: 12px 10px 10px;
+    padding: 10px 15px;
     background: #fdfdfd;
-    /* Distinct row color */
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    margin-top: 5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    /* subtle shadow below search */
+    z-index: 1000;
   }
 
   .search-container {

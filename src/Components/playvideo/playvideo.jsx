@@ -195,7 +195,10 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
         setIsDisliked(false);
       } catch (err) { console.error(err); }
     };
-    if (videoId) fetchMain();
+    if (videoId) {
+      fetchMain();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, [videoId]);
 
   useEffect(() => {
