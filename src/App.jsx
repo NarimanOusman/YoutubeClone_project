@@ -25,7 +25,6 @@ const App = () => {
   });
 
   const location = useLocation();
-  const isVideoPage = location.pathname.startsWith("/video");
   const isAuthPage = location.pathname === "/login";
 
   // Update localStorage when savedVideos changes
@@ -49,7 +48,7 @@ const App = () => {
 
   return (
     <>
-      {/* Show Navbar & Sidebar only on non-auth pages */}
+      {/* Hide Navbar & Sidebar on the login/auth page */}
       {!isAuthPage && (
         <>
           <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
@@ -67,15 +66,33 @@ const App = () => {
       )}
 
       <Routes>
+        {/* Auth page — full screen, no navbar/sidebar */}
         <Route path="/login" element={<Auth />} />
-        <Route path="/*" element={
-          <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
-            <Routes>
-              <Route path="/" element={<Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />} />
-              <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} subscribedChannels={subscribedChannels} setSubscribedChannels={setSubscribedChannels} />} />
-            </Routes>
-          </div>
-        } />
+
+        {/* Main app pages — wrapped in container */}
+        <Route
+          path="/"
+          element={
+            <div className={`container ${!sidebar ? "large-container" : ""}`}>
+              <Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />
+            </div>
+          }
+        />
+        <Route
+          path="/video/:categoryId/:videoId"
+          element={
+            <div className={`container large-container video-page`}>
+              <Video
+                sidebar={sidebar}
+                category={category}
+                savedVideos={savedVideos}
+                setSavedVideos={setSavedVideos}
+                subscribedChannels={subscribedChannels}
+                setSubscribedChannels={setSubscribedChannels}
+              />
+            </div>
+          }
+        />
       </Routes>
     </>
   );
