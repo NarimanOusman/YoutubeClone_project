@@ -17,6 +17,12 @@ const App = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Persistence for Subscribed Channels
+  const [subscribedChannels, setSubscribedChannels] = useState(() => {
+    const subs = localStorage.getItem("subscribedChannels");
+    return subs ? JSON.parse(subs) : [];
+  });
+
   const location = useLocation();
   const isVideoPage = location.pathname.startsWith("/video");
 
@@ -24,6 +30,11 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("savedVideos", JSON.stringify(savedVideos));
   }, [savedVideos]);
+
+  // Update localStorage when subscribedChannels changes
+  useEffect(() => {
+    localStorage.setItem("subscribedChannels", JSON.stringify(subscribedChannels));
+  }, [subscribedChannels]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
@@ -47,12 +58,13 @@ const App = () => {
         category={category}
         setCategory={setCategory}
         setSearchQuery={setSearchQuery}
+        subscribedChannels={subscribedChannels}
       />
 
       <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
         <Routes>
           <Route path="/" element={<Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />} />
-          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} />} />
+          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} subscribedChannels={subscribedChannels} setSubscribedChannels={setSubscribedChannels} />} />
         </Routes>
       </div>
     </>

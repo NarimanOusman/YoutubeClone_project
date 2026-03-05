@@ -14,7 +14,7 @@ import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
 import { useParams, useNavigate } from "react-router-dom";
 
-const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }) => {
+const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, subscribedChannels = [], setSubscribedChannels }) => {
   const [apiData, setApiData] = useState(null);
   const [channelData, setChannelData] = useState(null);
   const [commentsData, setCommentsData] = useState([]);
@@ -22,7 +22,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
 
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [newComment, setNewComment] = useState("");
   const [localComments, setLocalComments] = useState([]);
   const [localReplies, setLocalReplies] = useState({});
@@ -66,7 +66,41 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
     if (isLiked) setIsLiked(false);
   };
 
+  const isSubscribed = subscribedChannels.some(sub => sub.id === apiData?.snippet?.channelId);
   const isSaved = savedVideos?.some(v => (typeof v.id === "string" ? v.id : v.id?.videoId) === videoId);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleSubscribeAction = () => {
+    const channelId = apiData?.snippet?.channelId;
+    if (!channelId) return;
+
+    if (isSubscribed) {
+      setModal({
+        isOpen: true,
+        title: "Unsubscribe?",
+        message: `Are you sure you want to unsubscribe from ${apiData?.snippet?.channelTitle}?`,
+        confirmText: "Unsubscribe",
+        type: "danger",
+        onConfirm: () => {
+          setSubscribedChannels(subscribedChannels.filter(c => c.id !== channelId));
+          setModal({ ...modal, isOpen: false });
+          showToast("Unsubscribed from " + apiData.snippet.channelTitle);
+        }
+      });
+    } else {
+      const channelObj = {
+        id: channelId,
+        name: apiData.snippet.channelTitle,
+        image: channelData?.snippet?.thumbnails?.high?.url || jack
+      };
+      setSubscribedChannels([...subscribedChannels, channelObj]);
+      showToast("Subscribed to " + apiData.snippet.channelTitle + "!");
+    }
+  };
 
   const handleSaveAction = () => {
     if (isSaved) {
@@ -256,7 +290,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           <div className="publisher">
             <img src={channelData?.snippet?.thumbnails?.high?.url || jack} alt="" />
             <div><p>{apiData?.snippet?.channelTitle}</p><span>{channelData?.statistics?.subscriberCount ? value_convertor(parseInt(channelData.statistics.subscriberCount)) : "0"} subscribers</span></div>
-            <button onClick={() => setIsSubscribed(!isSubscribed)} className={isSubscribed ? "subscribed" : ""}>{isSubscribed ? "Subscribed" : "Subscribe"}</button>
+            <button onClick={handleSubscribeAction} className={isSubscribed ? "subscribed" : ""}>{isSubscribed ? "Subscribed" : "Subscribe"}</button>
           </div>
           <div className="description"><p>{apiData?.snippet?.description?.slice(0, 250)}...</p></div>
           <hr />
@@ -392,8 +426,18 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           </div>
           <img src={selectedImage} onClick={e => e.stopPropagation()} alt="" />
         </div>
-      )}
-    </div>
+      )
+      }
+
+      {/* TOAST NOTIFICATION */}
+      {
+        toastMessage && (
+          <div className="toast-notification">
+            {toastMessage}
+          </div>
+        )
+      }
+    </div >
   );
 };
 

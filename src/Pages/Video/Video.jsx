@@ -4,7 +4,7 @@ import "./Video.css";
 import PlayVideo from "../../Components/playvideo/playvideo";
 
 // Video.jsx
-const Video = ({ sidebar, category, savedVideos, setSavedVideos }) => {
+const Video = ({ sidebar, category, savedVideos, setSavedVideos, subscribedChannels, setSubscribedChannels }) => {
   const { videoId, categoryId } = useParams();
 
   return (
@@ -15,6 +15,8 @@ const Video = ({ sidebar, category, savedVideos, setSavedVideos }) => {
         categoryId={category !== "0" ? category : categoryId}
         savedVideos={savedVideos}
         setSavedVideos={setSavedVideos}
+        subscribedChannels={subscribedChannels}
+        setSubscribedChannels={setSubscribedChannels}
       />
     </div>
   );

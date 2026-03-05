@@ -28,6 +28,9 @@ const feed = ({ category, searchQuery, savedVideos }) => {
 
     if (searchQuery) {
       url = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=${searchQuery}&type=video&key=${API_KEY}`;
+    } else if (String(category).startsWith("channel_")) {
+      const channelId = String(category).split("_")[1];
+      url = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&channelId=${channelId}&type=video&order=date&key=${API_KEY}`;
     } else {
       url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=50&regionCode=US&videoCategoryId=${category}&key=${API_KEY}`;
     }

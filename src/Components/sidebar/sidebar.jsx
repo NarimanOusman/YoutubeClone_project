@@ -20,7 +20,7 @@ import megan from "../../assets/megan.png";
 import cameron from "../../assets/cameron.png";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
+const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedChannels = [] }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,9 +28,8 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
     setCategory(newCategory);
     if (setSearchQuery) setSearchQuery("");
 
-    // Always navigate to home for "Watch Later" to show the full saved grid.
-    // For other categories, stay on video page to only update recommendations.
-    if (newCategory === "saved" || !location.pathname.startsWith("/video")) {
+    // Always navigate to home for "Watch Later" or channels to show the grid.
+    if (newCategory === "saved" || String(newCategory).startsWith("channel_") || !location.pathname.startsWith("/video")) {
       navigate("/");
     }
   };
@@ -117,29 +116,23 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery }) => {
         <p>Watch Later</p>
       </div>
       <hr />
-      <div className="subscribers">
-        <h3>Subscribed</h3>
-        <div className="subscriber">
-          <img src={jack} alt="PewDiePie" />
-          <p>PewDiePie</p>
+
+      {subscribedChannels.length > 0 && (
+        <div className="subscribers">
+          <h3>Subscribed</h3>
+          {subscribedChannels.map((channel, index) => (
+            <div
+              key={index}
+              className={`subscriber ${category === `channel_${channel.id}` ? "active" : ""}`}
+              onClick={() => handleCategoryChange(`channel_${channel.id}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <img src={channel.image} alt={channel.name} />
+              <p>{channel.name}</p>
+            </div>
+          ))}
         </div>
-        <div className="subscriber">
-          <img src={tom} alt="Justin" />
-          <p>Justin Bieber</p>
-        </div>
-        <div className="subscriber">
-          <img src={simon} alt="Simon" />
-          <p>Mr. Beast</p>
-        </div>
-        <div className="subscriber">
-          <img src={megan} alt="5-Minute Crafts" />
-          <p>5-Minute Crafts</p>
-        </div>
-        <div className="subscriber">
-          <img src={cameron} alt="Cameron" />
-          <p>Nas Daily</p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
