@@ -5,6 +5,7 @@ import Navbar from "./Components/Navbar/Navbar";
 import Sidebar from "./Components/sidebar/sidebar";
 import Home from "./Pages/Home/Home";
 import Video from "./Pages/Video/Video";
+import Auth from "./Components/Auth/Auth";
 
 const App = () => {
   const [sidebar, setSidebar] = useState(window.innerWidth > 900);
@@ -25,6 +26,7 @@ const App = () => {
 
   const location = useLocation();
   const isVideoPage = location.pathname.startsWith("/video");
+  const isAuthPage = location.pathname === "/login";
 
   // Update localStorage when savedVideos changes
   useEffect(() => {
@@ -47,26 +49,34 @@ const App = () => {
 
   return (
     <>
-      <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
-      {/* Backdrop for mobile sidebar */}
-      {sidebar && window.innerWidth <= 900 && (
-        <div className="sidebar-overlay" onClick={() => setSidebar(false)}></div>
+      {/* Show Navbar & Sidebar only on non-auth pages */}
+      {!isAuthPage && (
+        <>
+          <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
+          {sidebar && window.innerWidth <= 900 && (
+            <div className="sidebar-overlay" onClick={() => setSidebar(false)}></div>
+          )}
+          <Sidebar
+            sidebar={sidebar}
+            category={category}
+            setCategory={setCategory}
+            setSearchQuery={setSearchQuery}
+            subscribedChannels={subscribedChannels}
+          />
+        </>
       )}
 
-      <Sidebar
-        sidebar={sidebar}
-        category={category}
-        setCategory={setCategory}
-        setSearchQuery={setSearchQuery}
-        subscribedChannels={subscribedChannels}
-      />
-
-      <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
-        <Routes>
-          <Route path="/" element={<Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />} />
-          <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} subscribedChannels={subscribedChannels} setSubscribedChannels={setSubscribedChannels} />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/login" element={<Auth />} />
+        <Route path="/*" element={
+          <div className={`container ${!sidebar ? "large-container" : ""} ${isVideoPage ? "video-page" : ""}`}>
+            <Routes>
+              <Route path="/" element={<Home category={category} searchQuery={searchQuery} savedVideos={savedVideos} />} />
+              <Route path="/video/:categoryId/:videoId" element={<Video sidebar={sidebar} category={category} savedVideos={savedVideos} setSavedVideos={setSavedVideos} subscribedChannels={subscribedChannels} setSubscribedChannels={setSubscribedChannels} />} />
+            </Routes>
+          </div>
+        } />
+      </Routes>
     </>
   );
 };

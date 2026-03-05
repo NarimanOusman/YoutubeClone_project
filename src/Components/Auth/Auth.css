@@ -1,0 +1,347 @@
+/* =========================================================
+   AUTH PAGE - PROFESSIONAL DESIGN
+   ========================================================= */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   AUTH CARD
+   ========================================================= */
+.auth-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+    animation: slideUpFade 0.4s ease-out;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   AUTH HEADER
+   ========================================================= */
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.auth-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: #cc0000;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-logo-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: white;
+}
+
+.auth-logo-text {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f0f0f;
+    letter-spacing: -0.5px;
+}
+
+.auth-logo-text span {
+    color: #cc0000;
+}
+
+.auth-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #606060;
+    margin-bottom: 30px;
+}
+
+.auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f0f0f;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+/* =========================================================
+   FORM TABS (Sign In / Sign Up toggle)
+   ========================================================= */
+.auth-tabs {
+    display: flex;
+    background: #f2f2f2;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 28px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #606060;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.auth-tab.active {
+    background: white;
+    color: #0f0f0f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================================================
+   FORM FIELDS
+   ========================================================= */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 13px 16px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #0f0f0f;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #cc0000;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.08);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* =========================================================
+   SUBMIT BUTTON
+   ========================================================= */
+.auth-btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: #cc0000;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+
+.auth-btn-primary:hover {
+    background: #aa0000;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.35);
+}
+
+.auth-btn-primary:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e5e5;
+}
+
+/* =========================================================
+   POST VIDEO PAGE (logged-in state)
+   ========================================================= */
+.post-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.post-header {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-top: 16px;
+}
+
+.post-header-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.post-header-info p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 4px 0 0;
+}
+
+.btn-logout {
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.post-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+    animation: slideUpFade 0.4s ease-out;
+}
+
+.post-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f0f0f;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f2f2f2;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 600px) {
+    .auth-card {
+        padding: 28px 20px;
+        border-radius: 16px;
+    }
+
+    .post-card {
+        padding: 24px 18px;
+        border-radius: 16px;
+    }
+
+    .auth-logo-text {
+        font-size: 22px;
+    }
+
+    .auth-title {
+        font-size: 19px;
+    }
+
+    .post-header-info h2 {
+        font-size: 17px;
+    }
+}
+
+/* =========================================================
+   PASSWORD STRENGTH METER
+   ========================================================= */
+.strength-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.strength-bar-track {
+    flex: 1;
+    height: 5px;
+    background: #e5e5e5;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+
+.strength-label {
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 72px;
+    text-align: right;
+    transition: color 0.3s ease;
+}
