@@ -58,15 +58,15 @@ img {
   .container.video-page {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    padding-top: 50px;
-    /* Minimized spacing to expand video to the top */
+    padding-top: 125px;
+    /* Enough space for 2-row header */
   }
 
   .container,
   .large-container {
     padding-left: 5% !important;
     padding-right: 5% !important;
-    padding-top: 70px;
+    padding-top: 140px;
   }
 }
 
@@ -76,5 +76,29 @@ img {
   .large-container {
     padding-left: 15px !important;
     padding-right: 15px !important;
+  }
+}
+
+/* Sidebar Click-Away Overlay */
+@media (max-width: 900px) {
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1500;
+    animation: sideFade 0.3s ease;
+  }
+}
+
+@keyframes sideFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

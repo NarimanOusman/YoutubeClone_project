@@ -30,6 +30,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
   const [replyingTo, setReplyingTo] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [commentInteractions, setCommentInteractions] = useState({});
+  const [showAllComments, setShowAllComments] = useState(false);
 
   // Professional Modal State
   const [modal, setModal] = useState({
@@ -242,10 +243,10 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
           <div className="playvideo_info">
             <p>{apiData?.statistics?.viewCount ? value_convertor(parseInt(apiData.statistics.viewCount)) : "0"} views &bull; {apiData?.snippet?.publishedAt ? moment(apiData.snippet.publishedAt).fromNow() : ""}</p>
             <div className="video-actions">
-              <span onClick={handleSaveAction} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
               <span onClick={handleLike} className={isLiked ? "active-like" : ""}><img src={like_icon} alt="" /> {getLikeDisplay(apiData?.statistics?.likeCount, isLiked)}</span>
               <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}><img src={dislike_icon} alt="" /> {isDisliked ? "Disliked" : "Dislike"}</span>
               <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }}><img src={share_icon} alt="" /> Share</span>
+              <span onClick={handleSaveAction} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
             </div>
           </div>
           <hr />
@@ -272,48 +273,62 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos }
 
           <h4>{apiData?.statistics?.commentCount ? value_convertor(parseInt(apiData.statistics.commentCount) + localComments.length) : localComments.length} Comments</h4>
 
-          {[...localComments, ...commentsData].map((item, index) => {
-            const commentId = item.id || index;
-            const interaction = commentInteractions[commentId] || { liked: false, disliked: false };
-            const snippet = item.snippet?.topLevelComment?.snippet || item.snippet;
+          {(() => {
+            const allComments = [...localComments, ...commentsData];
+            const displayedComments = showAllComments ? allComments : allComments.slice(0, 1);
 
             return (
-              <div key={commentId} className="comment-block">
-                <div className={`comment ${item.isLocal ? "is-local" : ""}`}>
-                  <img src={snippet.authorProfileImageUrl || profile_pic} alt="" />
-                  <div className="comment-body">
-                    <h3><span>{snippet.authorDisplayName} <small>{moment(snippet.publishedAt).fromNow()}</small></span>
-                      {item.isLocal && <button className="delete-comment" onClick={() => deleteCommentAction(commentId)}><Trash2 size={16} /></button>}
-                    </h3>
-                    <p>{snippet.textDisplay}</p>
-                    {item.media && <div className="comment-media"><img src={item.media.url} onClick={() => setSelectedImage(item.media.url)} alt="" /></div>}
-                    <div className="comment-action">
-                      <img src={like_icon} className={interaction.liked ? "active-like" : ""} onClick={() => handleCommentInteraction(commentId, "like")} alt="" />
-                      <span>{getLikeDisplay(snippet.likeCount || 0, interaction.liked)}</span>
-                      <img src={dislike_icon} className={interaction.disliked ? "active-dislike" : ""} onClick={() => handleCommentInteraction(commentId, "dislike")} alt="" />
-                      <button className="reply-btn" onClick={() => setReplyingTo(item)}>Reply</button>
-                    </div>
-                  </div>
-                </div>
-                {localReplies[commentId]?.map(r => {
-                  const rSnippet = r.snippet.topLevelComment.snippet;
+              <>
+                {displayedComments.map((item, index) => {
+                  const commentId = item.id || index;
+                  const interaction = commentInteractions[commentId] || { liked: false, disliked: false };
+                  const snippet = item.snippet?.topLevelComment?.snippet || item.snippet;
+
                   return (
-                    <div key={r.id} className="comment local-reply">
-                      <img src={profile_pic} alt="" />
-                      <div className="comment-body">
-                        <h3>
-                          <span>You <small>{moment(rSnippet.publishedAt).fromNow()}</small></span>
-                          <button className="delete-comment" onClick={() => deleteReplyAction(commentId, r.id)}><Trash2 size={16} /></button>
-                        </h3>
-                        <p>{rSnippet.textDisplay}</p>
-                        {r.media && <div className="comment-media"><img src={r.media.url} onClick={() => setSelectedImage(r.media.url)} alt="" /></div>}
+                    <div key={commentId} className="comment-block">
+                      <div className={`comment ${item.isLocal ? "is-local" : ""}`}>
+                        <img src={snippet.authorProfileImageUrl || profile_pic} alt="" />
+                        <div className="comment-body">
+                          <h3><span>{snippet.authorDisplayName} <small>{moment(snippet.publishedAt).fromNow()}</small></span>
+                            {item.isLocal && <button className="delete-comment" onClick={() => deleteCommentAction(commentId)}><Trash2 size={16} /></button>}
+                          </h3>
+                          <p>{snippet.textDisplay}</p>
+                          {item.media && <div className="comment-media"><img src={item.media.url} onClick={() => setSelectedImage(item.media.url)} alt="" /></div>}
+                          <div className="comment-action">
+                            <img src={like_icon} className={interaction.liked ? "active-like" : ""} onClick={() => handleCommentInteraction(commentId, "like")} alt="" />
+                            <span>{getLikeDisplay(snippet.likeCount || 0, interaction.liked)}</span>
+                            <img src={dislike_icon} className={interaction.disliked ? "active-dislike" : ""} onClick={() => handleCommentInteraction(commentId, "dislike")} alt="" />
+                            <button className="reply-btn" onClick={() => setReplyingTo(item)}>Reply</button>
+                          </div>
+                        </div>
                       </div>
+                      {localReplies[commentId]?.map(r => {
+                        const rSnippet = r.snippet.topLevelComment.snippet;
+                        return (
+                          <div key={r.id} className="comment local-reply">
+                            <img src={profile_pic} alt="" />
+                            <div className="comment-body">
+                              <h3>
+                                <span>You <small>{moment(rSnippet.publishedAt).fromNow()}</small></span>
+                                <button className="delete-comment" onClick={() => deleteReplyAction(commentId, r.id)}><Trash2 size={16} /></button>
+                              </h3>
+                              <p>{rSnippet.textDisplay}</p>
+                              {r.media && <div className="comment-media"><img src={r.media.url} onClick={() => setSelectedImage(r.media.url)} alt="" /></div>}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })}
-              </div>
+                {allComments.length > 1 && (
+                  <button className="see-more-comments-btn" onClick={() => setShowAllComments(!showAllComments)}>
+                    {showAllComments ? "See less" : "See more"}
+                  </button>
+                )}
+              </>
             );
-          })}
+          })()}
         </div>
       </div>
       <div className="recommended-section"><Recommended categoryId={categoryId} setQueue={setVideoQueue} savedVideos={savedVideos} /></div>

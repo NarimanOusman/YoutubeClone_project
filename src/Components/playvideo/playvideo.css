@@ -120,8 +120,10 @@
   padding-bottom: 5px;
 }
 
-.video-actions::-webkit-scrollbar {
-  display: none;
+@media (min-width: 901px) {
+  .video-actions::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .video-actions span {
@@ -486,6 +488,26 @@
   cursor: pointer;
 }
 
+.see-more-comments-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0 20px 0;
+  background-color: #f2f2f2;
+  color: #0f0f0f;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.see-more-comments-btn:hover {
+  background-color: #e5e5e5;
+}
+
 /* =========================================================
    7. RESPONSIVE
    ========================================================= */
@@ -522,6 +544,15 @@
 
   .video-actions {
     width: 100%;
+    gap: 8px;
+    padding-bottom: 10px;
+    /* More space for scroll interaction */
+  }
+
+  .video-actions span {
+    padding: 6px 12px;
+    font-size: 13px;
+    gap: 6px;
   }
 
   .publisher,

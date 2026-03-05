@@ -114,46 +114,81 @@ nav.collapsed {
   border: 1px solid white;
 }
 
-/* Responsive: On small screens */
+/* Responsive: On small screens - Move search below nav bar */
 @media (max-width: 900px) {
   nav {
-    padding: 10px 3%;
+    padding: 10px 3% 15px;
+    flex-wrap: wrap;
+    height: auto;
+    gap: 12px;
   }
 
-  .nav-left .logo {
-    width: 100px;
-    height: auto;
+  .nav-left {
+    flex: 1;
+    /* Take available space */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .nav-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .menu-icon {
+    display: block !important;
+    color: #444 !important;
+    margin-right: 0;
   }
 
   .nav-middle {
-    max-width: 140px;
-    /* Slimmer search on mobile */
+    order: 3;
+    /* Move to second row */
+    width: 100%;
+    max-width: 100% !important;
+    padding: 12px 10px 10px;
+    background: #fdfdfd;
+    /* Distinct row color */
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    margin-top: 5px;
+  }
+
+  .search-container {
+    width: 100%;
   }
 
   .search-input {
-    font-size: 12px;
-    padding: 8px 30px 8px 12px;
+    font-size: 14px;
+    padding: 10px 45px 10px 16px;
+    background: #ffffff;
+    border: 1px solid #ddd;
   }
 
-  /* Hide extra icons to save space on small screens */
-  .nav-right svg,
-  .nav-right [role="button"] {
+  /* Make sure icons are visible if previously hidden */
+  .nav-right svg {
     display: none;
+    /* Keep hidden to keep clean logo + profile line */
   }
 
   .nav-right .profile-img {
-    display: block;
-    /* Ensure profile stays */
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-left .logo {
+    width: 85px;
+    height: auto;
+    margin-left: 0;
   }
 }
 
+/* Extra small mobile adjustments */
 @media (max-width: 600px) {
-  .nav-left svg {
-    margin-right: 5px;
-  }
-
   .nav-middle {
-    display: none;
-    /* Hide search completely on tiny screens to fit logo + profile */
+    display: flex !important;
+    /* Force visible */
   }
 }

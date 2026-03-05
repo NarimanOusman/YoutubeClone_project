@@ -37,6 +37,11 @@ const App = () => {
   return (
     <>
       <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
+      {/* Backdrop for mobile sidebar */}
+      {sidebar && window.innerWidth <= 900 && (
+        <div className="sidebar-overlay" onClick={() => setSidebar(false)}></div>
+      )}
+
       <Sidebar
         sidebar={sidebar}
         category={category}

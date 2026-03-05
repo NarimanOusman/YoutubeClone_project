@@ -29,7 +29,7 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
         <Menu
           className="menu-icon"
           onClick={() => setSidebar((prev) => !prev)}
-          size={28}
+          size={22}
           color="#333"
           style={{ cursor: "pointer" }}
         />
@@ -42,7 +42,7 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
         <form className="search-container" onSubmit={handleSearch}>
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search videos..."
             className="search-input"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
