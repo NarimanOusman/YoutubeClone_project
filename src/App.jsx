@@ -6,6 +6,10 @@ import Sidebar from "./Components/sidebar/sidebar";
 import Home from "./Pages/Home/Home";
 import Video from "./Pages/Video/Video";
 import Auth from "./Components/Auth/Auth";
+import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
+import VerifyCode from "./Pages/VerifyCode/VerifyCode";
+import ResetPassword from "./Pages/ResetPassword/ResetPassword";
+import Profile from "./Pages/Profile/Profile";
 
 const App = () => {
   const [sidebar, setSidebar] = useState(window.innerWidth > 900);
@@ -25,7 +29,10 @@ const App = () => {
   });
 
   const location = useLocation();
-  const isAuthPage = location.pathname === "/login";
+  const isAuthPage = location.pathname === "/login" || 
+                    location.pathname === "/forgot-password" || 
+                    location.pathname === "/verify-code" || 
+                    location.pathname === "/reset-password";
 
   // Update localStorage when savedVideos changes
   useEffect(() => {
@@ -66,8 +73,14 @@ const App = () => {
       )}
 
       <Routes>
-        {/* Auth page — full screen, no navbar/sidebar */}
+        {/* Auth pages — full screen, no navbar/sidebar */}
         <Route path="/login" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Profile page */}
+        <Route path="/profile" element={<Profile />} />
 
         {/* Main app pages — wrapped in container */}
         <Route

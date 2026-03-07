@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import './Auth.css';
 
 const Auth = () => {
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState('');
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState({
+        show: false,
+        type: '',
+        message: ''
+    });
+    const navigate = useNavigate();
 
     // Password strength
     const getPasswordStrength = (pwd) => {
@@ -41,21 +51,105 @@ const Auth = () => {
         return () => subscription.unsubscribe();
     }, []);
 
+    // Show notification function
+    const showNotification = (type, message) => {
+        setNotification({ show: true, type, message });
+        setTimeout(() => {
+            setNotification({ show: false, type: '', message: '' });
+        }, 3000);
+    };
+
+    // Handle avatar file selection
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatarFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Upload avatar to Supabase Storage
+    const uploadAvatar = async (userId, file) => {
+        if (!file) return null;
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${userId}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: true
+            });
+            
+        if (uploadError) throw uploadError;
+        
+        const { data } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+            
+        return data.publicUrl;
+    };
+
     const handleSignUp = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password });
-        setLoading(false);
-        if (error) alert("Error: " + error.message);
-        else alert("Success! Check your email to confirm your account.");
+        
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName
+                    }
+                }
+            });
+
+            showNotification('success', 'Account created!');
+            setActiveTab('login');
+            setEmail('');
+            setPassword('');
+            setFullName('');
+            setAvatarFile(null);
+            setAvatarPreview('');
+            
+        } catch (error) {
+            showNotification('error', 'Signup failed.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        setLoading(false);
-        if (error) alert("Error: " + error.message);
+        
+        try {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                if (error.message.includes('Invalid login credentials')) {
+                    showNotification('error', 'Invalid email or password. Please try again.');
+                } else if (error.message.includes('Email not confirmed')) {
+                    showNotification('error', 'Please confirm your email before signing in.');
+                } else {
+                    showNotification('error', error.message);
+                }
+                return;
+            }
+            
+            // Redirect to home page after successful login
+            navigate('/');
+            
+        } catch (error) {
+            showNotification('error', 'An error occurred during login. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleLogout = async () => {
@@ -142,6 +236,20 @@ const Auth = () => {
     // ─── LOGGED OUT: Show Login / Sign Up form ──────────────────────────
     return (
         <div className="auth-page">
+            {/* Notification Toast */}
+            {notification.show && (
+                <div className={`notification-toast ${notification.type}`}>
+                    <div className="notification-content">
+                        <span className="notification-icon">
+                            {notification.type === 'success' ? '✓' : '⚠'}
+                        </span>
+                        <span className="notification-message">
+                            {notification.message}
+                        </span>
+                    </div>
+                </div>
+            )}
+
             <div className="auth-card">
 
                 {/* Logo */}
@@ -198,33 +306,84 @@ const Auth = () => {
                         <button type="submit" className="auth-btn-primary" disabled={loading}>
                             {loading ? "Signing in..." : "Sign In"}
                         </button>
+                        
+                        <div className="forgot-password-link">
+                            <a href="/forgot-password">Forgot your password?</a>
+                        </div>
                     </form>
                 )}
 
                 {/* Sign Up Form */}
                 {activeTab === 'signup' && (
                     <form onSubmit={handleSignUp} className="auth-form">
-                        <div className="form-group">
-                            <label>Email Address</label>
-                            <input
-                                type="email"
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
+                        <div className="signup-form-left">
+                            <div className="form-group">
+                                <label>Full Name *</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Profile Picture (Optional)</label>
+                                <div className="avatar-upload">
+                                    {avatarPreview ? (
+                                        <div className="avatar-preview">
+                                            <img src={avatarPreview} alt="Avatar preview" />
+                                            <button 
+                                                type="button" 
+                                                className="remove-avatar"
+                                                onClick={() => {
+                                                    setAvatarPreview('');
+                                                    setAvatarFile(null);
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="avatar-placeholder">
+                                            <div className="avatar-icon">👤</div>
+                                            <span>Add Photo</span>
+                                        </div>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        className="avatar-input"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label>Password</label>
-                            <input
-                                type="password"
-                                placeholder="Minimum 6 characters"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength={6}
-                            />
-                            {/* Password Strength Meter */}
+                        
+                        <div className="signup-form-right">
+                            <div className="form-group">
+                                <label>Email Address</label>
+                                <input
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Password</label>
+                                <input
+                                    type="password"
+                                    placeholder="Minimum 6 characters"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                />
+                            </div>
+                            
                             {password.length > 0 && (() => {
                                 const strength = getPasswordStrength(password);
                                 return (
@@ -244,10 +403,11 @@ const Auth = () => {
                                     </div>
                                 );
                             })()}
+                            
+                            <button type="submit" className="auth-btn-primary" disabled={loading}>
+                                {loading ? "Creating account..." : "Create Account"}
+                            </button>
                         </div>
-                        <button type="submit" className="auth-btn-primary" disabled={loading}>
-                            {loading ? "Creating account..." : "Create Account"}
-                        </button>
                     </form>
                 )}
 

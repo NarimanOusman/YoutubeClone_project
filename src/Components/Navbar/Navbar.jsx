@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -7,13 +7,30 @@ import {
   Bell,
   MoreVertical
 } from "lucide-react";
-import profile from "../../assets/user_profile.jpg";
+import { supabase } from "../../supabaseClient";
+import ProfileAvatar from "../ProfileAvatar/ProfileAvatar";
 import logo from "../../assets/logo.png";
 import "./Navbar.css";
 
 const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
   const [searchInput, setSearchInput] = useState("");
+  const [session, setSession] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+    };
+
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -54,10 +71,19 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
       </div>
 
       <div className="nav-right flex-div">
+        <Link to="/profile" className="account-link">
+          <span className="account-text">Account</span>
+        </Link>
         <Video className="nav-icon" size={24} style={{ cursor: "pointer" }} />
         <Bell className="nav-icon" size={24} style={{ cursor: "pointer" }} />
         <MoreVertical className="nav-icon" size={24} style={{ cursor: "pointer" }} />
-        <img src={profile} alt="Profile" className="profile-img" />
+        {session ? (
+          <ProfileAvatar session={session} />
+        ) : (
+          <Link to="/login" className="login-link">
+            <span>Sign In</span>
+          </Link>
+        )}
       </div>
     </nav>
   );
