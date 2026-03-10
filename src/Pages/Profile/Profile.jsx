@@ -152,14 +152,27 @@ const Profile = () => {
 
     setUploadingVideo(true);
     try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+
+      if (userError) throw userError;
+
+      const activeUser = userData.user;
+
+      if (!activeUser) {
+        throw new Error('You are not logged in. Please sign in again and retry.');
+      }
+
       // Upload video to storage
-      const fileName = `${session.user.id}/${Date.now()}.${videoFile.name.split('.').pop()}`;
+      const fileName = `${activeUser.id}/${Date.now()}.${videoFile.name.split('.').pop()}`;
       
       const { error: uploadError } = await supabase.storage
         .from('videos')
         .upload(fileName, videoFile);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        uploadError.message = `Storage upload failed: ${uploadError.message}`;
+        throw uploadError;
+      }
 
       const { data } = supabase.storage
         .from('videos')
@@ -169,7 +182,7 @@ const Profile = () => {
       const { error: dbError } = await supabase
         .from('videos')
         .insert({
-          user_id: session.user.id,
+          user_id: activeUser.id,
           title: videoTitle,
           description: '',
           media_url: data.publicUrl,
@@ -177,14 +190,27 @@ const Profile = () => {
           comments_disabled: false
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        dbError.message = `Database insert failed: ${dbError.message}`;
+        throw dbError;
+      }
 
       alert('Video uploaded successfully!');
       setVideoFile(null);
       setVideoTitle('');
       fileInputRef.current.value = '';
     } catch (error) {
-      alert('Error uploading video: ' + error.message);
+      console.error('Video upload failed:', error);
+
+      const isFileTooLarge = error.message?.toLowerCase().includes('maximum allowed size');
+
+      const details = isFileTooLarge
+        ? 'Selected video is larger than the allowed storage limit for this bucket. Increase the videos bucket file size limit in Supabase or upload a smaller file.'
+        : [error.message, error.details, error.hint, error.code]
+        .filter(Boolean)
+        .join(' | ');
+
+      alert('Error uploading video: ' + details);
     } finally {
       setUploadingVideo(false);
     }
