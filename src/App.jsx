@@ -5,6 +5,10 @@ import Navbar from "./Components/Navbar/Navbar";
 import Sidebar from "./Components/sidebar/sidebar";
 import Home from "./Pages/Home/Home";
 import Video from "./Pages/Video/Video";
+import Auth from "./Components/Auth/Auth";
+import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
+import VerifyCode from "./Pages/VerifyCode/VerifyCode";
+import ResetPassword from "./Pages/ResetPassword/ResetPassword";
 import Profile from "./Pages/Profile/Profile";
 
 const App = () => {
@@ -25,7 +29,11 @@ const App = () => {
   });
 
   const location = useLocation();
-  const isAuthPage = false;
+  const isAuthPage =
+    location.pathname === "/login" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/verify-code" ||
+    location.pathname === "/reset-password";
 
   // Update localStorage when savedVideos changes
   useEffect(() => {
@@ -48,19 +56,29 @@ const App = () => {
 
   return (
     <>
-      <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
-      {sidebar && window.innerWidth <= 900 && (
-        <div className="sidebar-overlay" onClick={() => setSidebar(false)}></div>
+      {!isAuthPage && (
+        <>
+          <Navbar setSidebar={setSidebar} sidebar={sidebar} setSearchQuery={setSearchQuery} />
+          {sidebar && window.innerWidth <= 900 && (
+            <div className="sidebar-overlay" onClick={() => setSidebar(false)}></div>
+          )}
+          <Sidebar
+            sidebar={sidebar}
+            category={category}
+            setCategory={setCategory}
+            setSearchQuery={setSearchQuery}
+            subscribedChannels={subscribedChannels}
+          />
+        </>
       )}
-      <Sidebar
-        sidebar={sidebar}
-        category={category}
-        setCategory={setCategory}
-        setSearchQuery={setSearchQuery}
-        subscribedChannels={subscribedChannels}
-      />
 
       <Routes>
+        {/* Auth pages — full screen, no navbar/sidebar */}
+        <Route path="/login" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
         {/* Profile page */}
         <Route path="/profile" element={<Profile />} />
 

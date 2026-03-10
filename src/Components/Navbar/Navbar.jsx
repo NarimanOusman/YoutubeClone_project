@@ -8,6 +8,7 @@ import {
   MoreVertical
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
+import ProfileAvatar from "../ProfileAvatar/ProfileAvatar";
 import logo from "../../assets/logo.png";
 import "./Navbar.css";
 
@@ -73,6 +74,13 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
         <Video className="nav-icon" size={24} style={{ cursor: "pointer" }} />
         <Bell className="nav-icon" size={24} style={{ cursor: "pointer" }} />
         <MoreVertical className="nav-icon" size={24} style={{ cursor: "pointer" }} />
+        {session ? (
+          <ProfileAvatar session={session} />
+        ) : (
+          <Link to="/login" className="login-link">
+            <span>Account</span>
+          </Link>
+        )}
       </div>
     </nav>
   );

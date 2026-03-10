@@ -171,8 +171,10 @@ const Profile = () => {
         .insert({
           user_id: session.user.id,
           title: videoTitle,
-          video_url: data.publicUrl,
-          created_at: new Date().toISOString()
+          description: '',
+          media_url: data.publicUrl,
+          media_type: 'video',
+          comments_disabled: false
         });
 
       if (dbError) throw dbError;

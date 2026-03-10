@@ -162,6 +162,7 @@
 
 .profile-input,
 .video-input {
+  width: 100%;
   padding: 12px 16px;
   border: 2px solid #e1e5e9;
   border-radius: 8px;
