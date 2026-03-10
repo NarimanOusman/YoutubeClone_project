@@ -26,6 +26,8 @@ body {
   z-index: 1000;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 @media (max-width: 900px) {
@@ -36,6 +38,7 @@ body {
     /* Hidden by default off-screen */
     width: 200px;
     height: calc(100vh - 130px);
+    max-height: calc(100vh - 130px);
     background: rgba(15, 15, 15, 0.9);
     /* Transparent Black */
     backdrop-filter: blur(15px);
@@ -45,6 +48,10 @@ body {
     z-index: 2000;
     display: block !important;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 24px;
   }
 
   .sidebar .sidelink,

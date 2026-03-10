@@ -31,6 +31,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
   const [selectedImage, setSelectedImage] = useState(null);
   const [commentInteractions, setCommentInteractions] = useState({});
   const [showAllComments, setShowAllComments] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Professional Modal State
   const [modal, setModal] = useState({
@@ -72,6 +73,61 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const getShareUrl = () => {
+    if (typeof window === "undefined") return "";
+    return window.location.href;
+  };
+
+  const getShareText = () => apiData?.snippet?.title ? `Watch: ${apiData.snippet.title}` : "Check out this video";
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("Link copied!");
+    } catch {
+      // Fallback
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "absolute";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      showToast("Link copied!");
+    }
+  };
+
+  const handleShare = async () => {
+    const url = getShareUrl();
+    const title = apiData?.snippet?.title || "Video";
+    const text = getShareText();
+
+    // Native share sheet on mobile (WhatsApp/Messenger/Facebook etc)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch {
+        // user cancelled or share failed -> fall back to custom sheet
+      }
+    }
+
+    setShareOpen(true);
+  };
+
+  const shareUrl = getShareUrl();
+  const shareText = getShareText();
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedText = encodeURIComponent(shareText);
+
+  const shareLinks = {
+    whatsapp: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    messenger: `https://www.facebook.com/dialog/send?link=${encodedUrl}&app_id=1234567890&redirect_uri=${encodedUrl}`
   };
 
   const handleSubscribeAction = () => {
@@ -282,7 +338,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
             <div className="video-actions">
               <span onClick={handleLike} className={isLiked ? "active-like" : ""}><img src={like_icon} alt="" /> {getLikeDisplay(apiData?.statistics?.likeCount, isLiked)}</span>
               <span onClick={handleDislike} className={isDisliked ? "active-dislike" : ""}><img src={dislike_icon} alt="" /> {isDisliked ? "Disliked" : "Dislike"}</span>
-              <span onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }}><img src={share_icon} alt="" /> Share</span>
+              <span onClick={handleShare}><img src={share_icon} alt="" /> Share</span>
               <span onClick={handleSaveAction} className={isSaved ? "active-save" : ""}><img src={save_icon} alt="" /> {isSaved ? "Saved" : "Save"}</span>
             </div>
           </div>
@@ -369,6 +425,35 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
         </div>
       </div>
       <div className="recommended-section"><Recommended categoryId={categoryId} setQueue={setVideoQueue} savedVideos={savedVideos} /></div>
+
+      {/* SHARE SHEET (fallback when native share isn't available) */}
+      {shareOpen && (
+        <div className="share-overlay" onClick={() => setShareOpen(false)}>
+          <div className="share-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="share-header">
+              <h3>Share</h3>
+              <button className="share-close" onClick={() => setShareOpen(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="share-actions">
+              <a className="share-item" href={shareLinks.whatsapp} target="_blank" rel="noreferrer">
+                WhatsApp
+              </a>
+              <a className="share-item" href={shareLinks.messenger} target="_blank" rel="noreferrer">
+                Messenger
+              </a>
+              <a className="share-item" href={shareLinks.facebook} target="_blank" rel="noreferrer">
+                Facebook
+              </a>
+              <button className="share-item share-copy" onClick={() => copyToClipboard(shareUrl)}>
+                Copy link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CUSTOM PROFESSIONAL CONFIRMATION MODAL */}
       {modal.isOpen && (
