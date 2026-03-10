@@ -44,7 +44,7 @@ const ProfileAvatar = ({ session }) => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleEditProfile = () => {
@@ -100,28 +100,6 @@ const ProfileAvatar = ({ session }) => {
             >
               <span className="dropdown-icon">👤</span>
               Edit Profile
-            </button>
-            
-            <button 
-              className="dropdown-item"
-              onClick={() => {
-                navigate('/account');
-                setDropdownOpen(false);
-              }}
-            >
-              <span className="dropdown-icon">📊</span>
-              My Account
-            </button>
-            
-            <button 
-              className="dropdown-item"
-              onClick={() => {
-                navigate('/settings');
-                setDropdownOpen(false);
-              }}
-            >
-              <span className="dropdown-icon">⚙️</span>
-              Settings
             </button>
             
             <div className="dropdown-divider"></div>

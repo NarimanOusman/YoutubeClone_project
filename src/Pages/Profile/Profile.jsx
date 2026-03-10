@@ -22,7 +22,7 @@ const Profile = () => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate('/login');
+        navigate('/');
         return;
       }
       setSession(session);
@@ -34,18 +34,44 @@ const Profile = () => {
 
   const fetchProfile = async (session) => {
     try {
+      // Try to get an existing profile row for this user
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
-      setFullName(data.full_name || '');
-      setAvatarPreview(data.avatar_url || '');
+      if (error) {
+        throw error;
+      }
+
+      // If no profile row exists yet (e.g. for older accounts),
+      // create a default one so the profile page always has data.
+      let profileRow = data;
+      if (!profileRow) {
+        const { data: inserted, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: session.user.id,
+            email: session.user.email,
+            full_name: session.user.user_metadata?.full_name || '',
+            avatar_url: null,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+        profileRow = inserted;
+      }
+
+      setProfile(profileRow);
+      setFullName(profileRow.full_name || '');
+      setAvatarPreview(profileRow.avatar_url || '');
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching/initializing profile:', error);
     }
   };
 
