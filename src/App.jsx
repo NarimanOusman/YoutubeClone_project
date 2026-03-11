@@ -95,7 +95,12 @@ const App = () => {
           path="/post/:postId"
           element={
             <div className={`container ${!sidebar ? "large-container" : ""}`}>
-              <Post />
+              <Post
+                savedVideos={savedVideos}
+                setSavedVideos={setSavedVideos}
+                subscribedChannels={subscribedChannels}
+                setSubscribedChannels={setSubscribedChannels}
+              />
             </div>
           }
         />

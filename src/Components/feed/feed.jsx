@@ -5,11 +5,13 @@ import { Link } from "react-router-dom";
 import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
 import { supabase } from "../../supabaseClient";
-import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 
 const feed = ({ category, searchQuery, savedVideos }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const communityFilterUserId = String(category).startsWith("community_user_")
+    ? String(category).replace("community_user_", "")
+    : null;
 
   const fetchCommunityPosts = async () => {
     let query = supabase
@@ -17,6 +19,10 @@ const feed = ({ category, searchQuery, savedVideos }) => {
       .select("id, user_id, title, description, media_url, media_type, created_at")
       .order("created_at", { ascending: false })
       .limit(20);
+
+    if (communityFilterUserId) {
+      query = query.eq("user_id", communityFilterUserId);
+    }
 
     if (searchQuery) {
       query = query.ilike("title", `%${searchQuery}%`);
@@ -49,6 +55,8 @@ const feed = ({ category, searchQuery, savedVideos }) => {
   };
 
   const fetchYoutubeVideos = async () => {
+    if (communityFilterUserId) return [];
+
     if (!API_KEY) {
       console.error("YouTube API Key is missing! Please set VITE_YOUTUBE_API_KEY in your .env file (local) or Render dashboard (live).");
       return [];
@@ -82,46 +90,8 @@ const feed = ({ category, searchQuery, savedVideos }) => {
     try {
       const [youtubeVideos, communityPosts] = await Promise.all([
         fetchYoutubeVideos(),
-        category === "0" || searchQuery ? fetchCommunityPosts() : Promise.resolve([])
+        category === "0" || searchQuery || communityFilterUserId ? fetchCommunityPosts() : Promise.resolve([])
       ]);
-
-      if (communityPosts.length > 0) {
-        const postIds = communityPosts.map((post) => post.id);
-
-        const [reactionRowsResult, commentRowsResult] = await Promise.all([
-          supabase
-            .from("video_reactions")
-            .select("video_id, reaction_type")
-            .in("video_id", postIds),
-          supabase
-            .from("video_comments")
-            .select("video_id")
-            .in("video_id", postIds)
-        ]);
-
-        const reactionRows = reactionRowsResult.error ? [] : (reactionRowsResult.data || []);
-        const commentRows = commentRowsResult.error ? [] : (commentRowsResult.data || []);
-
-        const reactionCountMap = {};
-        reactionRows.forEach((row) => {
-          if (!reactionCountMap[row.video_id]) {
-            reactionCountMap[row.video_id] = { likes: 0, dislikes: 0 };
-          }
-          if (row.reaction_type === "like") reactionCountMap[row.video_id].likes += 1;
-          if (row.reaction_type === "dislike") reactionCountMap[row.video_id].dislikes += 1;
-        });
-
-        const commentCountMap = {};
-        commentRows.forEach((row) => {
-          commentCountMap[row.video_id] = (commentCountMap[row.video_id] || 0) + 1;
-        });
-
-        communityPosts.forEach((post) => {
-          post.likes = reactionCountMap[post.id]?.likes || 0;
-          post.dislikes = reactionCountMap[post.id]?.dislikes || 0;
-          post.comments = commentCountMap[post.id] || 0;
-        });
-      }
 
       const mergedData = [...communityPosts, ...youtubeVideos];
       mergedData.sort((a, b) => {
@@ -181,12 +151,7 @@ const feed = ({ category, searchQuery, savedVideos }) => {
                     )}
                     <p1>{uploaderName}</p1>
                   </div>
-                  <p>{moment(item.created_at).fromNow()}</p>
-                  <div className="community-stats">
-                    <span><ThumbsUp size={14} /> {item.likes || 0}</span>
-                    <span><ThumbsDown size={14} /> {item.dislikes || 0}</span>
-                    <span><MessageCircle size={14} /> {item.comments || 0}</span>
-                  </div>
+                  <p>--- views &bull; {moment(item.created_at).fromNow()}</p>
                 </div>
               </Link>
             );

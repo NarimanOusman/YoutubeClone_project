@@ -28,8 +28,13 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedCha
     setCategory(newCategory);
     if (setSearchQuery) setSearchQuery("");
 
-    // Always navigate to home for "Watch Later" or channels to show the grid.
-    if (newCategory === "saved" || String(newCategory).startsWith("channel_") || !location.pathname.startsWith("/video")) {
+    // Always navigate to home for watch later and subscription filters to show the grid.
+    if (
+      newCategory === "saved" ||
+      String(newCategory).startsWith("channel_") ||
+      String(newCategory).startsWith("community_user_") ||
+      !location.pathname.startsWith("/video")
+    ) {
       navigate("/");
     }
   };
@@ -127,17 +132,23 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedCha
       {subscribedChannels.length > 0 && (
         <div className="subscribers">
           <h3>Subscribed</h3>
-          {subscribedChannels.map((channel, index) => (
-            <div
-              key={index}
-              className={`subscriber ${category === `channel_${channel.id}` ? "active" : ""}`}
-              onClick={() => handleCategoryChange(`channel_${channel.id}`)}
-              style={{ cursor: "pointer" }}
-            >
-              <img src={channel.image} alt={channel.name} />
-              <p>{channel.name}</p>
-            </div>
-          ))}
+          {subscribedChannels.map((channel, index) => {
+            const categoryKey = channel.type === "community"
+              ? `community_user_${channel.id}`
+              : `channel_${channel.id}`;
+
+            return (
+              <div
+                key={`${channel.type || "youtube"}-${channel.id}-${index}`}
+                className={`subscriber ${category === categoryKey ? "active" : ""}`}
+                onClick={() => handleCategoryChange(categoryKey)}
+                style={{ cursor: "pointer" }}
+              >
+                <img src={channel.image} alt={channel.name} />
+                <p>{channel.name}</p>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

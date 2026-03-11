@@ -1,16 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Send, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import like_icon from "../../assets/like.png";
 import dislike_icon from "../../assets/dislike.png";
 import share_icon from "../../assets/share.png";
+import save_icon from "../../assets/save.png";
 import profile_pic from "../../assets/user_profile.jpg";
 import moment from "moment";
+import Recommended from "../../Components/recommended/recommended";
 import "../../Components/playvideo/playvideo.css";
 import "./Post.css";
 
-const Post = () => {
+const Post = ({
+  savedVideos = [],
+  setSavedVideos = () => {},
+  subscribedChannels = [],
+  setSubscribedChannels = () => {}
+}) => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
@@ -27,12 +34,18 @@ const Post = () => {
   const [postingComment, setPostingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState("");
   const [shareOpen, setShareOpen] = useState(false);
+  const [currentUserProfile, setCurrentUserProfile] = useState(null);
 
-  const isOwner = useMemo(() => {
-    return Boolean(session?.user?.id && post?.user_id && session.user.id === post.user_id);
-  }, [session, post]);
+  const isSaved = useMemo(() => {
+    return savedVideos.some((item) => item?.source === "community" && item?.id === postId);
+  }, [savedVideos, postId]);
 
-  /* ---------- data loaders ---------- */
+  const isSubscribed = useMemo(() => {
+    if (!post?.user_id) return false;
+    return subscribedChannels.some(
+      (channel) => channel?.type === "community" && channel?.id === post.user_id
+    );
+  }, [subscribedChannels, post?.user_id]);
 
   const loadReactions = async () => {
     const { data, error } = await supabase
@@ -41,7 +54,6 @@ const Post = () => {
       .eq("video_id", postId);
 
     if (error) {
-      // Table does not exist yet. Keep post page functional without reaction persistence.
       if (error.code === "42P01") {
         setReactionsEnabled(false);
         return;
@@ -60,10 +72,64 @@ const Post = () => {
     }
   };
 
+  const loadComments = async () => {
+    const { data, error } = await supabase
+      .from("video_comments")
+      .select("id, user_id, content, created_at")
+      .eq("video_id", postId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      if (error.code === "42P01") {
+        setCommentsEnabled(false);
+        return;
+      }
+      console.error("Error loading comments:", error);
+      return;
+    }
+
+    const rows = data || [];
+    if (rows.length === 0) {
+      setComments([]);
+      return;
+    }
+
+    const userIds = [...new Set(rows.map((item) => item.user_id).filter(Boolean))];
+    let profileMap = {};
+
+    if (userIds.length > 0) {
+      const { data: profileRows } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      (profileRows || []).forEach((profile) => {
+        profileMap[profile.id] = profile;
+      });
+    }
+
+    const enriched = rows.map((item) => ({
+      ...item,
+      profile: profileMap[item.user_id] || null
+    }));
+
+    setComments(enriched);
+  };
+
   useEffect(() => {
     const init = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
-      setSession(sessionData.session || null);
+      const authSession = sessionData.session || null;
+      setSession(authSession);
+
+      if (authSession?.user?.id) {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .eq("id", authSession.user.id)
+          .single();
+        setCurrentUserProfile(myProfile || null);
+      }
 
       const { data, error } = await supabase
         .from("videos")
@@ -79,7 +145,6 @@ const Post = () => {
 
       setPost(data);
 
-      // Fetch uploader profile
       const { data: profileData } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url")
@@ -97,25 +162,6 @@ const Post = () => {
     if (!postId) return;
     loadReactions();
   }, [postId, session?.user?.id]);
-
-  const loadComments = async () => {
-    const { data, error } = await supabase
-      .from("video_comments")
-      .select("id, user_id, content, created_at")
-      .eq("video_id", postId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      if (error.code === "42P01") {
-        setCommentsEnabled(false);
-        return;
-      }
-      console.error("Error loading comments:", error);
-      return;
-    }
-
-    setComments(data || []);
-  };
 
   useEffect(() => {
     if (!postId) return;
@@ -175,7 +221,9 @@ const Post = () => {
       try {
         await navigator.share({ title: post?.title || "Community Post", url: shareUrl });
         return;
-      } catch { /* user cancelled */ }
+      } catch {
+        // user cancelled
+      }
     }
     setShareOpen(true);
   };
@@ -187,6 +235,61 @@ const Post = () => {
     } catch {
       alert("Could not copy link.");
     }
+  };
+
+  const handleSaveAction = () => {
+    if (!post) return;
+
+    setSavedVideos((prev) => {
+      const exists = prev.some((item) => item?.source === "community" && item?.id === post.id);
+      if (exists) {
+        return prev.filter((item) => !(item?.source === "community" && item?.id === post.id));
+      }
+
+      const savedPost = {
+        source: "community",
+        id: post.id,
+        user_id: post.user_id,
+        title: post.title,
+        description: post.description,
+        media_url: post.media_url,
+        media_type: post.media_type,
+        created_at: post.created_at,
+        profile: {
+          id: uploader?.id || post.user_id,
+          full_name: uploader?.full_name || "Community Member",
+          avatar_url: uploader?.avatar_url || null
+        }
+      };
+
+      return [...prev, savedPost];
+    });
+  };
+
+  const handleSubscribeAction = () => {
+    if (!post?.user_id) return;
+
+    setSubscribedChannels((prev) => {
+      const exists = prev.some(
+        (channel) => channel?.type === "community" && channel?.id === post.user_id
+      );
+
+      if (exists) {
+        return prev.filter(
+          (channel) => !(channel?.type === "community" && channel?.id === post.user_id)
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          id: post.user_id,
+          name: uploader?.full_name || "Community Member",
+          image: uploader?.avatar_url || profile_pic,
+          type: "community"
+        }
+      ];
+    });
   };
 
   const handleCommentSubmit = async (e) => {
@@ -253,11 +356,25 @@ const Post = () => {
   const uploaderName = uploader?.full_name || "Community Member";
   const uploaderAvatar = uploader?.avatar_url || null;
 
+  // Helper: renders a real photo or an initials circle
+  const AvatarOrInitials = ({ avatarUrl, name, className = "user-profile-img" }) => {
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt={name} className={className} />;
+    }
+    const initial = name ? name.trim().charAt(0).toUpperCase() : "?";
+    return (
+      <span className={`comment-initial-avatar ${className}`} aria-label={name}>
+        {initial}
+      </span>
+    );
+  };
+
+  const currentUserName = currentUserProfile?.full_name || (session ? "Me" : "");
+  const currentUserAvatar = currentUserProfile?.avatar_url || null;
+
   return (
     <div className="playvideo-container">
       <div className="main-content">
-
-        {/* Media player */}
         <div className="player-wrapper">
           {post.media_type === "image" ? (
             <img
@@ -281,55 +398,48 @@ const Post = () => {
           <div className="playvideo_info">
             <p>{moment(post.created_at).fromNow()} &bull; Community Post</p>
             <div className="video-actions">
-              <span
-                onClick={() => handleReact("like")}
-                className={reaction === "like" ? "active-like" : ""}
-              >
+              <span onClick={() => handleReact("like")} className={reaction === "like" ? "active-like" : ""}>
                 <img src={like_icon} alt="like" /> {counts.like}
               </span>
-              <span
-                onClick={() => handleReact("dislike")}
-                className={reaction === "dislike" ? "active-dislike" : ""}
-              >
+              <span onClick={() => handleReact("dislike")} className={reaction === "dislike" ? "active-dislike" : ""}>
                 <img src={dislike_icon} alt="dislike" />
               </span>
               <span onClick={handleShare}>
                 <img src={share_icon} alt="share" /> Share
               </span>
-              {isOwner && (
-                <Link to="/my-posts" style={{ textDecoration: "none" }}>
-                  <span className="manage-post-btn">✏️ Manage Post</span>
-                </Link>
-              )}
+              <span onClick={handleSaveAction} className={isSaved ? "active-save" : ""}>
+                <img src={save_icon} alt="save" /> {isSaved ? "Saved" : "Save"}
+              </span>
             </div>
           </div>
 
           <hr />
 
-          {/* Uploader info */}
           <div className="publisher">
             {uploaderAvatar ? (
               <img src={uploaderAvatar} alt={uploaderName} />
             ) : (
-              <div className="post-avatar-placeholder">
-                {uploaderName.charAt(0).toUpperCase()}
-              </div>
+              <span className="post-avatar-placeholder">{uploaderName.charAt(0).toUpperCase()}</span>
             )}
             <div>
               <p>{uploaderName}</p>
-              <span>Community Member</span>
+              <span>Community creator</span>
             </div>
+            <button onClick={handleSubscribeAction} className={isSubscribed ? "subscribed" : ""}>
+              {isSubscribed ? "Subscribed" : "Subscribe"}
+            </button>
           </div>
 
           {post.description ? (
-            <div className="description"><p>{post.description}</p></div>
+            <div className="description">
+              <p>{post.description}</p>
+            </div>
           ) : null}
 
           <hr />
 
-          {/* Comment input */}
           <div className="add-comment-section">
-            <img src={profile_pic} alt="you" className="user-profile-img" />
+            <AvatarOrInitials avatarUrl={currentUserAvatar} name={currentUserName} className="user-profile-img" />
             <form onSubmit={handleCommentSubmit}>
               <div className="input-group">
                 <input
@@ -354,14 +464,17 @@ const Post = () => {
 
           {comments.map((comment) => {
             const isMyComment = session?.user?.id === comment.user_id;
+            const commenterName = comment?.profile?.full_name || (isMyComment ? (currentUserName || "You") : "Guest");
+            const commenterAvatar = comment?.profile?.avatar_url || null;
+
             return (
               <div key={comment.id} className="comment-block">
                 <div className="comment">
-                  <img src={profile_pic} alt="" />
+                  <AvatarOrInitials avatarUrl={commenterAvatar} name={commenterName} />
                   <div className="comment-body">
                     <h3>
                       <span>
-                        {isMyComment ? "You" : "User"}
+                        {commenterName}
                         <small>{moment(comment.created_at).fromNow()}</small>
                       </span>
                       {isMyComment && (
@@ -370,7 +483,7 @@ const Post = () => {
                           disabled={deletingCommentId === comment.id}
                           onClick={() => handleDeleteComment(comment.id)}
                         >
-                          {deletingCommentId === comment.id ? "..." : "🗑"}
+                          {deletingCommentId === comment.id ? "..." : "Delete"}
                         </button>
                       )}
                     </h3>
@@ -383,7 +496,10 @@ const Post = () => {
         </div>
       </div>
 
-      {/* Share sheet */}
+      <div className="recommended-section">
+        <Recommended categoryId="10" />
+      </div>
+
       {shareOpen && (
         <div className="share-overlay" onClick={() => setShareOpen(false)}>
           <div className="share-sheet" onClick={(e) => e.stopPropagation()}>
@@ -410,10 +526,7 @@ const Post = () => {
               >
                 Facebook
               </a>
-              <button
-                className="share-item share-copy"
-                onClick={() => copyToClipboard(shareUrl)}
-              >
+              <button className="share-item share-copy" onClick={() => copyToClipboard(shareUrl)}>
                 Copy link
               </button>
             </div>
