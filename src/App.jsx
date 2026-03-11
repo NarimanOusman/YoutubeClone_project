@@ -10,6 +10,8 @@ import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
 import VerifyCode from "./Pages/VerifyCode/VerifyCode";
 import ResetPassword from "./Pages/ResetPassword/ResetPassword";
 import Profile from "./Pages/Profile/Profile";
+import MyPosts from "./Pages/MyPosts/MyPosts";
+import Post from "./Pages/Post/Post";
 
 const App = () => {
   const [sidebar, setSidebar] = useState(window.innerWidth > 900);
@@ -81,6 +83,22 @@ const App = () => {
 
         {/* Profile page */}
         <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/my-posts"
+          element={
+            <div className={`container ${!sidebar ? "large-container" : ""}`}>
+              <MyPosts />
+            </div>
+          }
+        />
+        <Route
+          path="/post/:postId"
+          element={
+            <div className={`container ${!sidebar ? "large-container" : ""}`}>
+              <Post />
+            </div>
+          }
+        />
 
         {/* Main app pages — wrapped in container */}
         <Route

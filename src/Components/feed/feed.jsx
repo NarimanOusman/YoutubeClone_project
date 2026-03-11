@@ -4,24 +4,54 @@ import "./feed.css";
 import { Link } from "react-router-dom";
 import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
+import { supabase } from "../../supabaseClient";
+import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 
 const feed = ({ category, searchQuery, savedVideos }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
-    // If viewing saved videos, bypass API call
-    if (category === "saved") {
-      setData(savedVideos || []);
-      setLoading(false);
-      return;
+  const fetchCommunityPosts = async () => {
+    let query = supabase
+      .from("videos")
+      .select("id, user_id, title, description, media_url, media_type, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (searchQuery) {
+      query = query.ilike("title", `%${searchQuery}%`);
     }
 
-    setLoading(true);
+    const { data: posts, error } = await query;
+
+    if (error) {
+      console.error("Error fetching community posts:", error);
+      return [];
+    }
+
+    if (!posts || posts.length === 0) return [];
+
+    // Fetch uploader profiles for all posts in one batch
+    const userIds = [...new Set(posts.map((p) => p.user_id))];
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url")
+      .in("id", userIds);
+
+    const profileMap = {};
+    (profiles || []).forEach((p) => { profileMap[p.id] = p; });
+
+    return posts.map((post) => ({
+      ...post,
+      source: "community",
+      profile: profileMap[post.user_id] || null
+    }));
+  };
+
+  const fetchYoutubeVideos = async () => {
     if (!API_KEY) {
       console.error("YouTube API Key is missing! Please set VITE_YOUTUBE_API_KEY in your .env file (local) or Render dashboard (live).");
-      setLoading(false);
-      return;
+      return [];
     }
 
     let url = "";
@@ -35,10 +65,72 @@ const feed = ({ category, searchQuery, savedVideos }) => {
       url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=50&regionCode=US&videoCategoryId=${category}&key=${API_KEY}`;
     }
 
+    const response = await fetch(url);
+    const youtubeData = await response.json();
+    return (youtubeData.items || []).map((item) => ({ ...item, source: "youtube" }));
+  };
+
+  const fetchData = async () => {
+    // If viewing saved videos, bypass API call
+    if (category === "saved") {
+      setData(savedVideos || []);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setData(data.items || []);
+      const [youtubeVideos, communityPosts] = await Promise.all([
+        fetchYoutubeVideos(),
+        category === "0" || searchQuery ? fetchCommunityPosts() : Promise.resolve([])
+      ]);
+
+      if (communityPosts.length > 0) {
+        const postIds = communityPosts.map((post) => post.id);
+
+        const [reactionRowsResult, commentRowsResult] = await Promise.all([
+          supabase
+            .from("video_reactions")
+            .select("video_id, reaction_type")
+            .in("video_id", postIds),
+          supabase
+            .from("video_comments")
+            .select("video_id")
+            .in("video_id", postIds)
+        ]);
+
+        const reactionRows = reactionRowsResult.error ? [] : (reactionRowsResult.data || []);
+        const commentRows = commentRowsResult.error ? [] : (commentRowsResult.data || []);
+
+        const reactionCountMap = {};
+        reactionRows.forEach((row) => {
+          if (!reactionCountMap[row.video_id]) {
+            reactionCountMap[row.video_id] = { likes: 0, dislikes: 0 };
+          }
+          if (row.reaction_type === "like") reactionCountMap[row.video_id].likes += 1;
+          if (row.reaction_type === "dislike") reactionCountMap[row.video_id].dislikes += 1;
+        });
+
+        const commentCountMap = {};
+        commentRows.forEach((row) => {
+          commentCountMap[row.video_id] = (commentCountMap[row.video_id] || 0) + 1;
+        });
+
+        communityPosts.forEach((post) => {
+          post.likes = reactionCountMap[post.id]?.likes || 0;
+          post.dislikes = reactionCountMap[post.id]?.dislikes || 0;
+          post.comments = commentCountMap[post.id] || 0;
+        });
+      }
+
+      const mergedData = [...communityPosts, ...youtubeVideos];
+      mergedData.sort((a, b) => {
+        const aDate = a.source === "community" ? a.created_at : a.snippet?.publishedAt;
+        const bDate = b.source === "community" ? b.created_at : b.snippet?.publishedAt;
+        return new Date(bDate || 0) - new Date(aDate || 0);
+      });
+
+      setData(mergedData);
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {
@@ -59,10 +151,47 @@ const feed = ({ category, searchQuery, savedVideos }) => {
       ) : data.length === 0 ? (
         <div className="no-videos">
           <h2>{category === "saved" ? "You haven't saved any videos yet." : "No videos found."}</h2>
-          {category !== "saved" && !API_KEY && <p style={{ color: 'red' }}>Error: YouTube API Key is missing.</p>}
+          {category !== "saved" && !API_KEY && <p style={{ color: "red" }}>Error: YouTube API Key is missing.</p>}
         </div>
       ) : (
         data.map((item, index) => {
+          if (item.source === "community") {
+            const postMedia = item.media_url;
+            const isImage = item.media_type === "image";
+
+            const uploaderName = item.profile?.full_name || "Community Member";
+            const uploaderAvatar = item.profile?.avatar_url || null;
+
+            return (
+              <Link to={`/post/${item.id}`} className="card-link" key={`post-${item.id}`}>
+                <div className="card community-card">
+                  {isImage ? (
+                    <img src={postMedia} alt={item.title} />
+                  ) : (
+                    <video src={postMedia} muted preload="metadata" />
+                  )}
+                  <h2>{item.title}</h2>
+                  <div className="community-channel">
+                    {uploaderAvatar ? (
+                      <img src={uploaderAvatar} alt={uploaderName} className="community-avatar" />
+                    ) : (
+                      <div className="community-avatar community-avatar-placeholder">
+                        {uploaderName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <p1>{uploaderName}</p1>
+                  </div>
+                  <p>{moment(item.created_at).fromNow()}</p>
+                  <div className="community-stats">
+                    <span><ThumbsUp size={14} /> {item.likes || 0}</span>
+                    <span><ThumbsDown size={14} /> {item.dislikes || 0}</span>
+                    <span><MessageCircle size={14} /> {item.comments || 0}</span>
+                  </div>
+                </div>
+              </Link>
+            );
+          }
+
           const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
           const categoryId = item.snippet.categoryId || "0";
           const viewCount = item.statistics ? value_convertor(item.statistics.viewCount) : "---";

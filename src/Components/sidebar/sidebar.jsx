@@ -115,6 +115,13 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedCha
         <Clock size={24} />
         <p>Watch Later</p>
       </div>
+      <div
+        className={`sidelink ${location.pathname === "/my-posts" ? "active" : ""}`}
+        onClick={() => navigate("/my-posts")}
+      >
+        <Image size={24} />
+        <p>My Posts</p>
+      </div>
       <hr />
 
       {subscribedChannels.length > 0 && (
