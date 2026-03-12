@@ -90,7 +90,7 @@ const feed = ({ category, searchQuery, savedVideos }) => {
     try {
       const [youtubeVideos, communityPosts] = await Promise.all([
         fetchYoutubeVideos(),
-        category === "0" || searchQuery || communityFilterUserId ? fetchCommunityPosts() : Promise.resolve([])
+        category !== "saved" && !String(category).startsWith("channel_") ? fetchCommunityPosts() : Promise.resolve([])
       ]);
 
       const mergedData = [...communityPosts, ...youtubeVideos];

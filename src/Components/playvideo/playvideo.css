@@ -250,6 +250,23 @@
   object-fit: cover;
 }
 
+.comment-initial-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #374151;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .add-comment-section form {
   flex: 1;
   display: flex;

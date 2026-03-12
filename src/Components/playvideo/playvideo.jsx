@@ -13,6 +13,7 @@ import Recommended from "../../Components/recommended/recommended";
 import value_convertor, { API_KEY } from "../../data";
 import moment from "moment";
 import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
 const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, subscribedChannels = [], setSubscribedChannels }) => {
   const [apiData, setApiData] = useState(null);
@@ -32,6 +33,19 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
   const [commentInteractions, setCommentInteractions] = useState({});
   const [showAllComments, setShowAllComments] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [currentUserProfile, setCurrentUserProfile] = useState(null);
+
+  const currentUserName = currentUserProfile?.full_name || "You";
+  const currentUserAvatar = currentUserProfile?.avatar_url || null;
+
+  const AvatarOrInitials = ({ avatarUrl, name, className = "user-profile-img" }) => {
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt={name} className={className} />;
+    }
+
+    const initial = name?.trim?.().charAt(0)?.toUpperCase() || "U";
+    return <span className={`comment-initial-avatar ${className}`}>{initial}</span>;
+  };
 
   // Professional Modal State
   const [modal, setModal] = useState({
@@ -227,9 +241,33 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
     }
   };
 
-  const submitComment = (e) => {
+  const submitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() && !selectedFile) return;
+
+    let commentAuthorName = currentUserName;
+    let commentAuthorAvatar = currentUserAvatar;
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user?.id;
+
+      if (userId) {
+        const { data: latestProfile } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .eq("id", userId)
+          .single();
+
+        if (latestProfile) {
+          setCurrentUserProfile(latestProfile);
+          commentAuthorName = latestProfile.full_name || currentUserName;
+          commentAuthorAvatar = latestProfile.avatar_url || currentUserAvatar;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh current user profile before comment:", error);
+    }
 
     const timestamp = new Date().toISOString();
     const myComment = {
@@ -237,8 +275,8 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
       snippet: {
         topLevelComment: {
           snippet: {
-            authorDisplayName: "You",
-            authorProfileImageUrl: profile_pic,
+            authorDisplayName: commentAuthorName,
+            authorProfileImageUrl: commentAuthorAvatar,
             textDisplay: newComment,
             publishedAt: timestamp,
             likeCount: 0
@@ -303,6 +341,28 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
   }, [apiData]);
 
   useEffect(() => {
+    const loadProfile = async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user?.id;
+
+      if (!userId) {
+        setCurrentUserProfile(null);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .eq("id", userId)
+        .single();
+
+      setCurrentUserProfile(profile || null);
+    };
+
+    loadProfile();
+  }, [videoId]);
+
+  useEffect(() => {
     const fetchComments = async () => {
       try {
         const response = await fetch(`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}&maxResults=15`);
@@ -352,7 +412,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
           <hr />
 
           <div className="add-comment-section">
-            <img src={profile_pic} alt="" className="user-profile-img" />
+            <AvatarOrInitials avatarUrl={currentUserAvatar} name={currentUserName} className="user-profile-img" />
             <form onSubmit={submitComment}>
               <div className="input-group">
                 <input type="text" placeholder="Add a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)} />
@@ -380,7 +440,11 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
                   return (
                     <div key={commentId} className="comment-block">
                       <div className={`comment ${item.isLocal ? "is-local" : ""}`}>
-                        <img src={snippet.authorProfileImageUrl || profile_pic} alt="" />
+                        {item.isLocal ? (
+                          <AvatarOrInitials avatarUrl={snippet.authorProfileImageUrl || null} name={snippet.authorDisplayName} />
+                        ) : (
+                          <img src={snippet.authorProfileImageUrl || profile_pic} alt="" />
+                        )}
                         <div className="comment-body">
                           <h3><span>{snippet.authorDisplayName} <small>{moment(snippet.publishedAt).fromNow()}</small></span>
                             {item.isLocal && <button className="delete-comment" onClick={() => deleteCommentAction(commentId)}><Trash2 size={16} /></button>}
@@ -399,10 +463,10 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
                         const rSnippet = r.snippet.topLevelComment.snippet;
                         return (
                           <div key={r.id} className="comment local-reply">
-                            <img src={profile_pic} alt="" />
+                            <AvatarOrInitials avatarUrl={currentUserAvatar} name={currentUserName} />
                             <div className="comment-body">
                               <h3>
-                                <span>You <small>{moment(rSnippet.publishedAt).fromNow()}</small></span>
+                                <span>{currentUserName} <small>{moment(rSnippet.publishedAt).fromNow()}</small></span>
                                 <button className="delete-comment" onClick={() => deleteReplyAction(commentId, r.id)}><Trash2 size={16} /></button>
                               </h3>
                               <p>{rSnippet.textDisplay}</p>
@@ -485,7 +549,7 @@ const PlayVideo = ({ sidebar, videoId, categoryId, savedVideos, setSavedVideos, 
               <X cursor="pointer" onClick={() => { setReplyingTo(null); setSelectedFile(null); }} />
             </div>
             <div className="add-comment-section drawer-input">
-              <img src={profile_pic} alt="" className="user-profile-img" />
+              <AvatarOrInitials avatarUrl={currentUserAvatar} name={currentUserName} className="user-profile-img" />
               <form onSubmit={submitComment}>
                 <div className="input-group">
                   <input autoFocus type="text" placeholder="Add a reply..." value={newComment} onChange={(e) => setNewComment(e.target.value)} />
