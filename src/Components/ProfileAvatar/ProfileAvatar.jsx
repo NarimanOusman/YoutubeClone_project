@@ -52,6 +52,11 @@ const ProfileAvatar = ({ session }) => {
     setDropdownOpen(false);
   };
 
+  const handleAccount = () => {
+    navigate('/my-posts');
+    setDropdownOpen(false);
+  };
+
   const getInitials = (name) => {
     if (!name) return session?.user?.email?.charAt(0).toUpperCase() || 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -94,6 +99,14 @@ const ProfileAvatar = ({ session }) => {
           <div className="profile-dropdown-divider"></div>
           
           <div className="profile-dropdown-menu">
+            <button
+              className="dropdown-item"
+              onClick={handleAccount}
+            >
+              <span className="dropdown-icon">🧾</span>
+              Account
+            </button>
+
             <button 
               className="dropdown-item"
               onClick={handleEditProfile}

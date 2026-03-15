@@ -9,6 +9,13 @@ import { supabase } from "../../supabaseClient";
 const feed = ({ category, searchQuery, savedVideos }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const getYoutubeVideoId = (item) => {
+    if (!item) return null;
+    if (typeof item.id === "string") return item.id;
+    if (typeof item.id?.videoId === "string") return item.id.videoId;
+    if (typeof item.snippet?.resourceId?.videoId === "string") return item.snippet.resourceId.videoId;
+    return null;
+  };
   const communityFilterUserId = String(category).startsWith("community_user_")
     ? String(category).replace("community_user_", "")
     : null;
@@ -157,7 +164,8 @@ const feed = ({ category, searchQuery, savedVideos }) => {
             );
           }
 
-          const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
+          const videoId = getYoutubeVideoId(item);
+          if (!videoId) return null;
           const categoryId = item.snippet.categoryId || "0";
           const viewCount = item.statistics ? value_convertor(item.statistics.viewCount) : "---";
 

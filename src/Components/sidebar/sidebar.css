@@ -64,6 +64,11 @@ body {
     color: #f1f1f1 !important;
   }
 
+  .sidebar .sidebar-my-posts-fallback {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
   .sidebar .sidelink:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -77,6 +82,10 @@ body {
   .sidebar .sidelink.active svg,
   .sidebar .sidelink.active p {
     color: #ff4d4d !important;
+  }
+
+  .sidebar .sidelink.active .sidebar-my-posts-avatar {
+    box-shadow: 0 0 0 2px #ff4d4d;
   }
 
   .sidebar hr {
@@ -136,6 +145,24 @@ body {
   color: #0f0f0f;
 }
 
+.sidebar-my-posts-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sidebar-my-posts-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1d5db;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .sidelink.active {
   background-color: #e5e5e5;
   color: #c00;
@@ -152,6 +179,10 @@ body {
 
 .sidelink.active svg {
   color: #c00;
+}
+
+.sidelink.active .sidebar-my-posts-avatar {
+  box-shadow: 0 0 0 2px #c00;
 }
 
 

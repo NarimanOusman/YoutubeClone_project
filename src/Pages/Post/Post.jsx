@@ -430,11 +430,9 @@ const Post = ({
             </button>
           </div>
 
-          {post.description ? (
-            <div className="description">
-              <p>{post.description}</p>
-            </div>
-          ) : null}
+          <div className="description">
+            <p>{post.description?.trim() || "No description provided by the uploader."}</p>
+          </div>
 
           <hr />
 

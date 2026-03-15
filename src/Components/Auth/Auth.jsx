@@ -69,12 +69,13 @@ const Auth = () => {
         if (!file) return null;
 
         const fileExt = file.name.split('.').pop();
-        const fileName = `${userId}.${fileExt}`;
+        const fileName = `${userId}/avatar.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
             .from('avatars')
             .upload(fileName, file, {
                 cacheControl: '3600',
+                contentType: file.type,
                 upsert: true
             });
 

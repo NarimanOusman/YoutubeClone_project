@@ -6,13 +6,19 @@ import PlayVideo from "../../Components/playvideo/playvideo";
 // Video.jsx
 const Video = ({ sidebar, category, savedVideos, setSavedVideos, subscribedChannels, setSubscribedChannels }) => {
   const { videoId, categoryId } = useParams();
+  const normalizedCategoryId =
+    category === "saved"
+      ? "saved"
+      : /^\d+$/.test(String(category || ""))
+        ? String(category)
+        : categoryId;
 
   return (
     <div className="played-container">
       <PlayVideo
         sidebar={sidebar}
         videoId={videoId}
-        categoryId={category !== "0" ? category : categoryId}
+        categoryId={normalizedCategoryId}
         savedVideos={savedVideos}
         setSavedVideos={setSavedVideos}
         subscribedChannels={subscribedChannels}

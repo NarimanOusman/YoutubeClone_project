@@ -8,6 +8,14 @@ const Recommended = ({ categoryId, setQueue, savedVideos }) => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getYoutubeVideoId = (item) => {
+    if (!item) return null;
+    if (typeof item.id === "string") return item.id;
+    if (typeof item.id?.videoId === "string") return item.id.videoId;
+    if (typeof item.snippet?.resourceId?.videoId === "string") return item.snippet.resourceId.videoId;
+    return null;
+  };
+
   const fetchData = async () => {
     if (categoryId === "saved") {
       setApiData(savedVideos || []);
@@ -47,11 +55,15 @@ const Recommended = ({ categoryId, setQueue, savedVideos }) => {
       {apiData.length === 0 ? (
         <p>No videos found</p>
       ) : (
-        apiData.map((item) => (
+        apiData.map((item) => {
+          const videoId = getYoutubeVideoId(item);
+          if (!videoId) return null;
+
+          return (
           <Link
-            to={`/video/${item.snippet.categoryId}/${item.id}`}
+            to={`/video/${item.snippet?.categoryId || "0"}/${videoId}`}
             className="side-video-list"
-            key={item.id}
+            key={videoId}
           >
             <img
               src={item.snippet.thumbnails.medium.url}
@@ -70,7 +82,8 @@ const Recommended = ({ categoryId, setQueue, savedVideos }) => {
               </p>
             </div>
           </Link>
-        ))
+          );
+        })
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./sidebar.css";
 import {
   House,
@@ -10,19 +10,44 @@ import {
   Headphones,
   Newspaper,
   Rss,
-  Clock,
-  Image,
+  Clock
 } from "lucide-react";
-import jack from "../../assets/jack.png";
-import tom from "../../assets/tom.png";
-import simon from "../../assets/simon.png";
-import megan from "../../assets/megan.png";
-import cameron from "../../assets/cameron.png";
+import { supabase } from "../../supabaseClient";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedChannels = [] }) => {
+  const [myProfile, setMyProfile] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: authData } = await supabase.auth.getSession();
+      const userId = authData?.session?.user?.id;
+      if (!userId) {
+        setMyProfile(null);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .eq("id", userId)
+        .maybeSingle();
+
+      setMyProfile(data || null);
+    };
+
+    loadProfile();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadProfile();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const myInitial = (myProfile?.full_name || "U").trim().charAt(0).toUpperCase();
 
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
@@ -124,7 +149,15 @@ const Sidebar = ({ sidebar, category, setCategory, setSearchQuery, subscribedCha
         className={`sidelink ${location.pathname === "/my-posts" ? "active" : ""}`}
         onClick={() => navigate("/my-posts")}
       >
-        <Image size={24} />
+        {myProfile?.avatar_url ? (
+          <img
+            src={myProfile.avatar_url}
+            alt={myProfile.full_name || "My profile"}
+            className="sidebar-my-posts-avatar"
+          />
+        ) : (
+          <span className="sidebar-my-posts-avatar sidebar-my-posts-fallback">{myInitial}</span>
+        )}
         <p>My Posts</p>
       </div>
       <hr />

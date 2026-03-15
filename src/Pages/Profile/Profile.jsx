@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ProfileAvatar from '../../Components/ProfileAvatar/ProfileAvatar';
@@ -12,10 +12,6 @@ const Profile = () => {
   const [fullName, setFullName] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
-  const [videoFile, setVideoFile] = useState(null);
-  const [videoTitle, setVideoTitle] = useState('');
-  const [uploadingVideo, setUploadingVideo] = useState(false);
-  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,10 +30,9 @@ const Profile = () => {
 
   const fetchProfile = async (session) => {
     try {
-      // Try to get an existing profile row for this user
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, avatar_url')
         .eq('id', session.user.id)
         .maybeSingle();
 
@@ -45,33 +40,17 @@ const Profile = () => {
         throw error;
       }
 
-      // If no profile row exists yet (e.g. for older accounts),
-      // create a default one so the profile page always has data.
-      let profileRow = data;
-      if (!profileRow) {
-        const { data: inserted, error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: session.user.id,
-            email: session.user.email,
-            full_name: session.user.user_metadata?.full_name || '',
-            avatar_url: null,
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          throw insertError;
-        }
-        profileRow = inserted;
-      }
+      const profileRow = data || {
+        id: session.user.id,
+        full_name: session.user.user_metadata?.full_name || '',
+        avatar_url: null
+      };
 
       setProfile(profileRow);
       setFullName(profileRow.full_name || '');
       setAvatarPreview(profileRow.avatar_url || '');
     } catch (error) {
-      console.error('Error fetching/initializing profile:', error);
+      console.error('Error fetching profile:', error);
     }
   };
 
@@ -89,24 +68,25 @@ const Profile = () => {
 
   const uploadAvatar = async () => {
     if (!avatarFile) return null;
-    
+
     const fileExt = avatarFile.name.split('.').pop();
-    const fileName = `${session.user.id}.${fileExt}`;
-    
+    const fileName = `${session.user.id}/avatar.${fileExt}`;
+
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(fileName, avatarFile, {
         cacheControl: '3600',
+        contentType: avatarFile.type,
         upsert: true
       });
-      
+
     if (uploadError) throw uploadError;
-    
+
     const { data } = supabase.storage
       .from('avatars')
       .getPublicUrl(fileName);
-      
-    return data.publicUrl;
+
+    return `${data.publicUrl}?t=${Date.now()}`;
   };
 
   const handleSaveProfile = async () => {
@@ -120,12 +100,12 @@ const Profile = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: session.user.id,
           full_name: fullName,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', session.user.id);
+        }, { onConflict: 'id' });
 
       if (error) throw error;
 
@@ -144,78 +124,6 @@ const Profile = () => {
     }
   };
 
-  const handleVideoUpload = async () => {
-    if (!videoFile || !videoTitle) {
-      alert('Please select a video and enter a title');
-      return;
-    }
-
-    setUploadingVideo(true);
-    try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-
-      if (userError) throw userError;
-
-      const activeUser = userData.user;
-
-      if (!activeUser) {
-        throw new Error('You are not logged in. Please sign in again and retry.');
-      }
-
-      // Upload video to storage
-      const fileName = `${activeUser.id}/${Date.now()}.${videoFile.name.split('.').pop()}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(fileName, videoFile);
-
-      if (uploadError) {
-        uploadError.message = `Storage upload failed: ${uploadError.message}`;
-        throw uploadError;
-      }
-
-      const { data } = supabase.storage
-        .from('videos')
-        .getPublicUrl(fileName);
-
-      // Create video record in database
-      const { error: dbError } = await supabase
-        .from('videos')
-        .insert({
-          user_id: activeUser.id,
-          title: videoTitle,
-          description: '',
-          media_url: data.publicUrl,
-          media_type: 'video',
-          comments_disabled: false
-        });
-
-      if (dbError) {
-        dbError.message = `Database insert failed: ${dbError.message}`;
-        throw dbError;
-      }
-
-      alert('Video uploaded successfully!');
-      setVideoFile(null);
-      setVideoTitle('');
-      fileInputRef.current.value = '';
-    } catch (error) {
-      console.error('Video upload failed:', error);
-
-      const isFileTooLarge = error.message?.toLowerCase().includes('maximum allowed size');
-
-      const details = isFileTooLarge
-        ? 'Selected video is larger than the allowed storage limit for this bucket. Increase the videos bucket file size limit in Supabase or upload a smaller file.'
-        : [error.message, error.details, error.hint, error.code]
-        .filter(Boolean)
-        .join(' | ');
-
-      alert('Error uploading video: ' + details);
-    } finally {
-      setUploadingVideo(false);
-    }
-  };
-
   if (!session || !profile) {
     return <div className="profile-loading">Loading...</div>;
   }
@@ -231,7 +139,7 @@ const Profile = () => {
         {/* Welcome Section */}
         <div className="welcome-section">
           <h2>Welcome, {profile.full_name || 'User'}! 👋</h2>
-          <p>Manage your profile and upload your videos from here.</p>
+          <p>Manage your profile details and keep your account information up to date.</p>
         </div>
 
         {/* Profile Section */}
@@ -307,56 +215,21 @@ const Profile = () => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setEditing(true)}
-                    className="edit-btn"
-                  >
-                    Edit Profile
-                  </button>
+                  <div className="default-actions">
+                    <button
+                      onClick={() => navigate('/my-posts')}
+                      className="account-btn"
+                    >
+                      Account
+                    </button>
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="edit-btn"
+                    >
+                      Edit Profile
+                    </button>
+                  </div>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Video Upload Section */}
-        <div className="video-upload-section">
-          <h3>Upload New Video</h3>
-          <div className="video-upload-card">
-            <div className="upload-area">
-              <div className="camera-icon">📹</div>
-              <p>Upload a video from your device</p>
-              
-              <div className="upload-form">
-                <div className="form-group">
-                  <label>Video Title</label>
-                  <input
-                    type="text"
-                    value={videoTitle}
-                    onChange={(e) => setVideoTitle(e.target.value)}
-                    placeholder="Enter video title"
-                    className="video-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Video File</label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) => setVideoFile(e.target.files[0])}
-                    className="video-input"
-                  />
-                </div>
-
-                <button
-                  onClick={handleVideoUpload}
-                  disabled={uploadingVideo || !videoFile || !videoTitle}
-                  className="upload-btn-primary"
-                >
-                  {uploadingVideo ? 'Uploading...' : '📤 Upload Video'}
-                </button>
               </div>
             </div>
           </div>
