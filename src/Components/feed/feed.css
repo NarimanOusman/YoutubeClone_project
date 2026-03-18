@@ -13,7 +13,7 @@
     flex-direction: column;
 }
 
-.card img {
+.card > img {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
@@ -21,7 +21,7 @@
     transition: transform 0.3s ease;
 }
 
-.card:hover img {
+.card:hover > img {
     transform: scale(1.02);
 }
 
@@ -68,7 +68,7 @@
     }
 }
 
-.card video {
+.card > video {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
@@ -93,6 +93,8 @@
     height: 22px;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
+    flex-shrink: 0;
 }
 
 .community-avatar-placeholder {

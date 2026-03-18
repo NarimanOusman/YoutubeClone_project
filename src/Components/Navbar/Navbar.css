@@ -203,10 +203,9 @@ nav.collapsed {
     border: 1px solid #ddd;
   }
 
-  /* Make sure icons are visible if previously hidden */
-  .nav-right svg {
-    display: none;
-    /* Keep hidden to keep clean logo + profile line */
+  /* Keep video action visible in mobile navbar */
+  .nav-right .nav-icon {
+    display: flex !important;
   }
 
   .nav-right .profile-img {
@@ -226,5 +225,18 @@ nav.collapsed {
   .nav-middle {
     display: flex !important;
     /* Force visible */
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .utility-menu-btn {
+    padding: 6px;
+  }
+
+  .utility-dropdown {
+    right: -10px;
+    width: 200px;
   }
 }

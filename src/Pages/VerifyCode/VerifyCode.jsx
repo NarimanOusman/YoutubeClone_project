@@ -15,7 +15,7 @@ const VerifyCode = () => {
   useEffect(() => {
     const savedEmail = localStorage.getItem('resetEmail');
     if (savedEmail) {
-      setEmail(savedEmail);
+      setEmail(savedEmail.toLowerCase());
     } else {
       setMessage('No email found. Please start the password reset process again.');
       setMessageType('error');
@@ -72,14 +72,17 @@ const VerifyCode = () => {
     }
 
     try {
+      const normalizedEmail = email.toLowerCase();
       const { data, error } = await supabase
         .from('password_resets')
         .select('*')
-        .eq('email', email)
+        .eq('email', normalizedEmail)
         .eq('code', fullCode)
         .eq('used', false)
         .gte('expires_at', new Date().toISOString())
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error || !data) {
         setMessage('Invalid or expired code');
@@ -92,7 +95,7 @@ const VerifyCode = () => {
         .update({ used: true })
         .eq('id', data.id);
 
-      localStorage.setItem('verifiedEmail', email);
+      localStorage.setItem('verifiedEmail', normalizedEmail);
       localStorage.setItem('resetId', data.id);
 
       setMessage('Code verified! Redirecting...');

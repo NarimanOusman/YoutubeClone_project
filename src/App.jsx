@@ -12,6 +12,8 @@ import ResetPassword from "./Pages/ResetPassword/ResetPassword";
 import Profile from "./Pages/Profile/Profile";
 import MyPosts from "./Pages/MyPosts/MyPosts";
 import Post from "./Pages/Post/Post";
+import Settings from "./Pages/Settings/Settings";
+import Help from "./Pages/Help/Help";
 
 const App = () => {
   const [sidebar, setSidebar] = useState(window.innerWidth > 900);
@@ -83,6 +85,22 @@ const App = () => {
 
         {/* Profile page */}
         <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/settings"
+          element={
+            <div className={`container ${!sidebar ? "large-container" : ""}`}>
+              <Settings />
+            </div>
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            <div className={`container ${!sidebar ? "large-container" : ""}`}>
+              <Help />
+            </div>
+          }
+        />
         <Route
           path="/my-posts"
           element={

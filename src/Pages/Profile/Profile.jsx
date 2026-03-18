@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import ProfileAvatar from '../../Components/ProfileAvatar/ProfileAvatar';
+import { Camera, LayoutDashboard, Mail, PencilLine, UserCircle2, UserRound } from 'lucide-react';
 import './Profile.css';
 
 const Profile = () => {
@@ -132,7 +132,6 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <h1>My Account</h1>
-        <ProfileAvatar session={session} />
       </div>
 
       <div className="profile-content">
@@ -152,13 +151,13 @@ const Profile = () => {
                   <img src={avatarPreview} alt="Avatar" className="avatar-preview-large" />
                 ) : (
                   <div className="avatar-placeholder-large">
-                    <span>👤</span>
+                    <UserCircle2 size={58} />
                   </div>
                 )}
                 {editing && (
                   <div className="avatar-upload-overlay">
                     <label htmlFor="avatar-upload" className="upload-btn">
-                      📷 Change Photo
+                      <Camera size={14} /> Change Photo
                     </label>
                     <input
                       id="avatar-upload"
@@ -174,7 +173,7 @@ const Profile = () => {
 
             <div className="profile-details">
               <div className="form-group">
-                <label>Full Name</label>
+                <label><UserRound size={14} /> Full Name</label>
                 {editing ? (
                   <input
                     type="text"
@@ -188,7 +187,7 @@ const Profile = () => {
               </div>
 
               <div className="form-group">
-                <label>Email</label>
+                <label><Mail size={14} /> Email</label>
                 <p>{session.user.email}</p>
               </div>
 
@@ -220,13 +219,13 @@ const Profile = () => {
                       onClick={() => navigate('/my-posts')}
                       className="account-btn"
                     >
-                      Account
+                      <LayoutDashboard size={16} /> Account
                     </button>
                     <button
                       onClick={() => setEditing(true)}
                       className="edit-btn"
                     >
-                      Edit Profile
+                      <PencilLine size={16} /> Edit Profile
                     </button>
                   </div>
                 )}

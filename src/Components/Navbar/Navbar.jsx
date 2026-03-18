@@ -3,12 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Menu,
   Search,
-  Video,
-  Bell,
-  MoreVertical
+  Video
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import ProfileAvatar from "../ProfileAvatar/ProfileAvatar";
+import NotificationCenter from "../NotificationCenter/NotificationCenter";
+import UtilityMenu from "../UtilityMenu/UtilityMenu";
 import logo from "../../assets/logo.png";
 import "./Navbar.css";
 
@@ -37,6 +37,14 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
     if (searchInput.trim()) {
       setSearchQuery(searchInput);
       navigate("/"); // Redirect to home to show search results
+    }
+  };
+
+  const handleUploadClick = () => {
+    if (!session) {
+      navigate("/login");
+    } else {
+      navigate("/my-posts");
     }
   };
 
@@ -71,9 +79,15 @@ const Navbar = ({ setSidebar, sidebar, setSearchQuery }) => {
       </div>
 
       <div className="nav-right flex-div">
-        <Video className="nav-icon" size={24} style={{ cursor: "pointer" }} />
-        <Bell className="nav-icon" size={24} style={{ cursor: "pointer" }} />
-        <MoreVertical className="nav-icon" size={24} style={{ cursor: "pointer" }} />
+        <Video 
+          className="nav-icon" 
+          size={24} 
+          style={{ cursor: "pointer" }}
+          onClick={handleUploadClick}
+          title="Upload or create video"
+        />
+        {session && <NotificationCenter session={session} />}
+        <UtilityMenu />
         {session ? (
           <ProfileAvatar session={session} />
         ) : (

@@ -1,0 +1,276 @@
+.help-page {
+	min-height: 100vh;
+	background:
+		radial-gradient(circle at top right, rgba(251, 146, 60, 0.22), transparent 46%),
+		radial-gradient(circle at 14% 20%, rgba(59, 130, 246, 0.14), transparent 36%),
+		#f8fafc;
+	padding: 20px;
+}
+
+.help-header {
+	max-width: 980px;
+	margin: 0 auto 24px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+}
+
+.help-back {
+	width: 40px;
+	height: 40px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #fff;
+	color: #4b5563;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.help-back:hover {
+	border-color: #cbd5e1;
+	color: #111827;
+	transform: translateY(-1px);
+}
+
+.help-header h1 {
+	margin: 0;
+	flex: 1;
+	text-align: center;
+	font-size: clamp(22px, 3.2vw, 34px);
+	color: #0f172a;
+	letter-spacing: -0.02em;
+}
+
+.help-container {
+	max-width: 980px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.help-hero,
+.help-faq-section,
+.help-contact-section,
+.help-resources-section {
+	background: #fff;
+	border: 1px solid #e6ebf1;
+	border-radius: 18px;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+	padding: 24px;
+}
+
+.help-hero {
+	background: linear-gradient(130deg, #fff7ed 0%, #eff6ff 100%);
+}
+
+.help-hero h2,
+.help-faq-section h2,
+.help-contact-section h2,
+.help-resources-section h2 {
+	margin: 0 0 8px;
+	color: #0f172a;
+	font-size: clamp(18px, 2.3vw, 26px);
+}
+
+.help-hero p,
+.help-contact-section > p {
+	margin: 0;
+	color: #475569;
+	line-height: 1.6;
+}
+
+.help-quick-links {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.quick-link-card {
+	background: #fff;
+	border: 1px solid #e7edf4;
+	border-radius: 14px;
+	padding: 18px;
+	box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.quick-link-card svg {
+	color: #f97316;
+}
+
+.quick-link-card h3 {
+	margin: 8px 0 6px;
+	color: #0f172a;
+	font-size: 16px;
+}
+
+.quick-link-card p {
+	margin: 0;
+	color: #64748b;
+	font-size: 14px;
+}
+
+.faq-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.faq-item {
+	border: 1px solid #e8edf3;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.faq-item.expanded {
+	border-color: #dbeafe;
+	box-shadow: 0 3px 12px rgba(59, 130, 246, 0.12);
+}
+
+.faq-question {
+	width: 100%;
+	border: 0;
+	background: #fff;
+	cursor: pointer;
+	text-align: left;
+	padding: 14px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	color: #0f172a;
+	font-weight: 600;
+}
+
+.faq-icon {
+	flex-shrink: 0;
+	color: #64748b;
+	transition: transform 0.2s ease;
+}
+
+.faq-answer {
+	padding: 0 16px 14px;
+}
+
+.faq-answer p {
+	margin: 0;
+	color: #475569;
+	line-height: 1.6;
+	font-size: 14px;
+}
+
+.contact-methods {
+	margin-top: 14px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.contact-card {
+	border: 1px solid #e8edf3;
+	border-radius: 14px;
+	padding: 18px;
+	background: #fff;
+}
+
+.contact-card svg {
+	color: #2563eb;
+}
+
+.contact-card h3 {
+	margin: 10px 0 6px;
+	color: #0f172a;
+}
+
+.contact-card p {
+	margin: 0 0 12px;
+	color: #64748b;
+	font-size: 14px;
+}
+
+.contact-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #dbe3ee;
+	background: #f8fafc;
+	color: #0f172a;
+	border-radius: 10px;
+	padding: 9px 12px;
+	text-decoration: none;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.contact-link:hover {
+	background: #eef2ff;
+	border-color: #c7d2fe;
+}
+
+.resource-links {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.resource-link {
+	text-decoration: none;
+	color: #1e3a8a;
+	border: 1px solid #dbe3ee;
+	border-radius: 10px;
+	background: #f8fafc;
+	padding: 10px 12px;
+	font-weight: 600;
+}
+
+.resource-link:hover {
+	background: #eff6ff;
+}
+
+@media (max-width: 900px) {
+	.help-page {
+		padding: 14px;
+	}
+
+	.help-hero,
+	.help-faq-section,
+	.help-contact-section,
+	.help-resources-section {
+		padding: 18px;
+		border-radius: 14px;
+	}
+
+	.help-quick-links,
+	.contact-methods,
+	.resource-links {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 640px) {
+	.help-header {
+		margin-bottom: 14px;
+	}
+
+	.help-header h1 {
+		font-size: 22px;
+	}
+
+	.help-back {
+		width: 36px;
+		height: 36px;
+	}
+
+	.faq-question {
+		padding: 12px;
+		font-size: 14px;
+	}
+
+	.faq-answer {
+		padding: 0 12px 12px;
+	}
+}

@@ -15,7 +15,7 @@ const ResetPassword = () => {
   useEffect(() => {
     const verifiedEmail = localStorage.getItem('verifiedEmail');
     if (!verifiedEmail) {
-      setMessage('No verified email found. Please start the password reset process again.');
+      setMessage('No verified email found. Please verify the 6-digit code first.');
       setMessageType('error');
       setTimeout(() => {
         navigate('/forgot-password');
@@ -28,30 +28,22 @@ const ResetPassword = () => {
   const calculatePasswordStrength = (password) => {
     if (!password) return { score: 0, text: '', color: '#ddd' };
 
-    let score = 0;
-    const checks = {
-      length: password.length >= 8,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      numbers: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-
-    score = Object.values(checks).filter(Boolean).length;
+    let score = 1;
+    if (password.length >= 8) score = 2;
+    if (password.length >= 10) score = 3;
+    if (password.length >= 12) score = 4;
 
     const strengthLevels = {
       0: { text: 'Very Weak', color: '#ff4757' },
       1: { text: 'Weak', color: '#ff6348' },
-      2: { text: 'Fair', color: '#ffa502' },
-      3: { text: 'Good', color: '#ffdd59' },
-      4: { text: 'Strong', color: '#26de81' },
-      5: { text: 'Very Strong', color: '#20bf6b' }
+      2: { text: 'Okay', color: '#ffa502' },
+      3: { text: 'Good', color: '#22c55e' },
+      4: { text: 'Strong', color: '#16a34a' }
     };
 
     return {
       score,
-      ...strengthLevels[score],
-      checks
+      ...strengthLevels[score]
     };
   };
 
@@ -62,6 +54,8 @@ const ResetPassword = () => {
     setLoading(true);
     setMessage('');
 
+    const resetId = localStorage.getItem('resetId');
+
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
       setMessageType('error');
@@ -69,20 +63,45 @@ const ResetPassword = () => {
       return;
     }
 
-    if (passwordStrength.score < 3) {
-      setMessage('Password is too weak. Please choose a stronger password.');
+    if (password.length < 6) {
+      setMessage('Password must be at least 6 characters.');
       setMessageType('error');
       setLoading(false);
       return;
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
+      // Primary flow: custom 6-digit verification + server-side RPC password update
+      let finalError = null;
 
-      if (error) {
-        throw error;
+      if (resetId && email) {
+        const { error: rpcError } = await supabase.rpc('reset_password_with_code_v1', {
+          p_email: email,
+          p_reset_id: resetId,
+          p_new_password: password,
+        });
+
+        if (rpcError) {
+          const v1Missing =
+            rpcError?.code === 'PGRST202' ||
+            String(rpcError?.message || '').includes('Could not find the function public.reset_password_with_code_v1');
+
+          if (v1Missing) {
+            throw new Error('Setup required: reset_password_with_code_v1 is missing. Run the latest create-password-resets.sql and retry.');
+          }
+
+          finalError = rpcError;
+        }
+      } else {
+        finalError = new Error('Missing reset session. Please verify your code again.');
+      }
+
+      // Fallback flow: if user came from Supabase recovery email link
+      if (finalError) {
+        const { error: sessionError } = await supabase.auth.updateUser({ password });
+        if (sessionError) {
+          throw finalError;
+        }
       }
 
       localStorage.removeItem('resetEmail');
@@ -97,6 +116,7 @@ const ResetPassword = () => {
       }, 2000);
 
     } catch (error) {
+      console.error('Reset password failed:', error);
       setMessage(error.message || 'Failed to reset password');
       setMessageType('error');
     } finally {
@@ -147,26 +167,17 @@ const ResetPassword = () => {
                 <div
                   className="strength-fill"
                   style={{
-                    width: `${(passwordStrength.score / 5) * 100}%`,
+                    width: `${(passwordStrength.score / 4) * 100}%`,
                     backgroundColor: passwordStrength.color
                   }}
                 />
               </div>
               <div className="strength-requirements">
-                <div className={`requirement ${passwordStrength.checks.length ? 'met' : ''}`}>
-                  ✓ At least 8 characters
+                <div className={`requirement ${password.length >= 6 ? 'met' : ''}`}>
+                  ✓ At least 6 characters
                 </div>
-                <div className={`requirement ${passwordStrength.checks.lowercase ? 'met' : ''}`}>
-                  ✓ One lowercase letter
-                </div>
-                <div className={`requirement ${passwordStrength.checks.uppercase ? 'met' : ''}`}>
-                  ✓ One uppercase letter
-                </div>
-                <div className={`requirement ${passwordStrength.checks.numbers ? 'met' : ''}`}>
-                  ✓ One number
-                </div>
-                <div className={`requirement ${passwordStrength.checks.special ? 'met' : ''}`}>
-                  ✓ One special character
+                <div className="requirement requirement-note">
+                  Tip: Use a longer password for better security
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import emailjs from '@emailjs/browser';
+import { useNavigate } from 'react-router-dom';
 import './ForgotPassword.css';
 
 const ForgotPassword = () => {
@@ -8,6 +9,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const navigate = useNavigate();
 
   const generateCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -19,6 +21,7 @@ const ForgotPassword = () => {
     setMessage('');
 
     try {
+      const trimmedEmail = email.trim().toLowerCase();
       const code = generateCode();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -26,38 +29,57 @@ const ForgotPassword = () => {
         .from('password_resets')
         .insert([
           {
-            email: email,
-            code: code,
+            email: trimmedEmail,
+            code,
             expires_at: expiresAt.toISOString(),
-            used: false
-          }
+            used: false,
+          },
         ]);
 
       if (dbError) {
-        throw new Error('Failed to save reset code');
+        throw new Error(`Database error: ${dbError.message}`);
       }
 
-      const formattedCode = `VidTube_${code}`;
-
-      const templateParams = {
-        to_email: email,
-        code: formattedCode
-      };
-
-      await emailjs.send(
+      const emailResult = await emailjs.send(
         'service_h8i77xa',
         'template_ms3ui0g',
-        templateParams,
-        'gZ6Uw9Gtb0wqPO85I'
+        {
+          to_email: trimmedEmail,
+          to: trimmedEmail,
+          email: trimmedEmail,
+          user_email: trimmedEmail,
+          recipient: trimmedEmail,
+          reply_to: trimmedEmail,
+          code,
+        },
+        {
+          publicKey: 'gZ6Uw9Gtb0wqPO85I',
+        }
       );
 
-      localStorage.setItem('resetEmail', email);
+      if (emailResult?.status !== 200) {
+        throw new Error('Email provider returned a non-success response.');
+      }
 
-      setMessage('Reset code sent to your email! Check your inbox.');
+      localStorage.setItem('resetEmail', trimmedEmail);
+
+      setMessage('6-digit code sent. Check your email.');
       setMessageType('success');
 
+      setTimeout(() => {
+        navigate('/verify-code');
+      }, 900);
+
     } catch (error) {
-      setMessage(error.message || 'Failed to send reset code');
+      const providerHint = error?.text ? ` EmailJS: ${error.text}` : '';
+      const statusHint = error?.status ? ` (status ${error.status})` : '';
+      const details = error?.message || 'Failed to send reset code';
+      const recipientHint =
+        error?.status === 422
+          ? ' Configure EmailJS template To Email as {{to_email}} (or {{email}}) in dashboard.'
+          : '';
+      setMessage(`${details}${statusHint}${providerHint}${recipientHint}`);
+      console.error('Forgot password send code error:', error);
       setMessageType('error');
     } finally {
       setLoading(false);
@@ -68,7 +90,7 @@ const ForgotPassword = () => {
     <div className="forgot-password-container">
       <div className="forgot-password-card">
         <h2>Forgot Password</h2>
-        <p>Enter your email address and we'll send you a verification code.</p>
+        <p>Enter your email address and we'll send you a 6-digit verification code.</p>
 
         <form onSubmit={handleSendCode} className="forgot-password-form">
           <div className="form-group">

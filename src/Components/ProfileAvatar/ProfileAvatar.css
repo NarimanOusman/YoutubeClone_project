@@ -140,6 +140,19 @@
   color: #c82333;
 }
 
+.more-item {
+  color: #1f2937;
+}
+
+.mobile-actions-panel {
+  border-top: 1px solid #e1e5e9;
+  background: #fafbff;
+}
+
+.mobile-actions-panel .dropdown-item {
+  padding-left: 28px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .profile-dropdown {
@@ -153,5 +166,9 @@
   
   .dropdown-item {
     padding: 10px 16px;
+  }
+
+  .mobile-actions-panel .dropdown-item {
+    padding-left: 22px;
   }
 }

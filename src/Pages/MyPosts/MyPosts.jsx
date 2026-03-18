@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, MoreHorizontal, Pencil, Save, Trash2, UploadCloud, X } from "lucide-react";
+import { CheckCircle2, Clapperboard, MoreHorizontal, Pencil, Save, Trash2, UploadCloud, X } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import ConfirmDialog from "../../Components/ConfirmDialog/ConfirmDialog";
+import VideoRecorder from "../../Components/VideoRecorder/VideoRecorder";
 import "./MyPosts.css";
 
 const MyPosts = () => {
@@ -21,6 +22,7 @@ const MyPosts = () => {
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [showRecorder, setShowRecorder] = useState(false);
   const uploadCardRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -244,6 +246,18 @@ const MyPosts = () => {
     }
   };
 
+  const handleRecordingComplete = (blob) => {
+    const file = new File([blob], `recording-${Date.now()}.webm`, {
+      type: 'video/webm',
+    });
+    setVideoFile(file);
+    setShowRecorder(false);
+    // Optionally auto-set a title for recorded videos
+    if (!videoTitle.trim()) {
+      setVideoTitle("My Recording");
+    }
+  };
+
   return (
     <div className="my-posts-page">
       <div className="my-posts-header">
@@ -297,16 +311,32 @@ const MyPosts = () => {
             </span>
             <span>{videoFile ? videoFile.name : "No file selected"}</span>
           </div>
-          <button
-            onClick={handleVideoUpload}
-            disabled={uploadingVideo || !videoFile || !videoTitle.trim()}
-            className="my-posts-upload-btn"
-          >
-            <UploadCloud size={18} />
-            {uploadingVideo ? "Posting video..." : "Post Video"}
-          </button>
+          <div className="my-posts-upload-actions">
+            <button
+              onClick={handleVideoUpload}
+              disabled={uploadingVideo || !videoFile || !videoTitle.trim()}
+              className="my-posts-upload-btn"
+            >
+              <UploadCloud size={18} />
+              {uploadingVideo ? "Posting video..." : "Post Video"}
+            </button>
+            <button
+              onClick={() => setShowRecorder(true)}
+              className="my-posts-record-btn"
+            >
+              <Clapperboard size={18} />
+              Record Video
+            </button>
+          </div>
         </div>
       </div>
+
+      {showRecorder && (
+        <VideoRecorder
+          onRecordingComplete={handleRecordingComplete}
+          onClose={() => setShowRecorder(false)}
+        />
+      )}
 
       {loading ? (
         <div className="my-posts-empty">Loading your posts...</div>

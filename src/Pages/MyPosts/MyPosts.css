@@ -175,7 +175,6 @@ input[type="file"].my-posts-input::file-selector-button:hover {
 }
 
 .my-posts-upload-btn {
-  grid-column: 1 / -1;
   border: 0;
   border-radius: 12px;
   background: linear-gradient(135deg, #cc0000 0%, #ff4d2d 100%);
@@ -191,6 +190,8 @@ input[type="file"].my-posts-input::file-selector-button:hover {
   box-shadow: 0 8px 20px rgba(204, 0, 0, 0.24);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   letter-spacing: 0.01em;
+  flex: 1;
+  min-width: 0;
 }
 
 .my-posts-upload-btn:hover:not(:disabled) {
@@ -203,6 +204,37 @@ input[type="file"].my-posts-input::file-selector-button:hover {
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
+}
+
+.my-posts-upload-actions {
+  display: flex;
+  gap: 12px;
+  grid-column: 1 / -1;
+}
+
+.my-posts-record-btn {
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 13px 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.01em;
+  flex: 1;
+  min-width: 0;
+}
+
+.my-posts-record-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(79, 70, 229, 0.4);
 }
 
 /* ----- Section sub-label ----- */
@@ -824,9 +856,21 @@ input[type="file"].my-posts-input::file-selector-button:hover {
     gap: 4px;
   }
 
+  .my-posts-upload-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
   .my-posts-upload-btn {
     font-size: 14px;
     padding: 11px 16px;
+    width: 100%;
+  }
+
+  .my-posts-record-btn {
+    font-size: 14px;
+    padding: 11px 16px;
+    width: 100%;
   }
 
   /* 3-column grid on mobile */

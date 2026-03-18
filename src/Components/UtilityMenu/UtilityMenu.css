@@ -1,0 +1,127 @@
+.utility-menu {
+  position: relative;
+}
+
+.utility-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 200ms ease;
+  color: #6b7280;
+}
+
+.utility-menu-btn:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.utility-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 220px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+  border: 1px solid #ebedf1;
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownSlide 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.utility-menu-item {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 150ms ease;
+  text-align: left;
+}
+
+.utility-menu-item:hover {
+  background-color: #f9fafb;
+  color: #4f46e5;
+}
+
+.utility-menu-item svg {
+  flex-shrink: 0;
+}
+
+.utility-menu-item-danger {
+  color: #ef4444;
+}
+
+.utility-menu-item-danger:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.utility-menu-divider {
+  height: 1px;
+  background-color: #ebedf1;
+  margin: 4px 0;
+}
+
+@media (max-width: 900px) {
+  .utility-menu {
+    display: none;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .utility-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    height: auto;
+    max-height: 50vh;
+    animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .utility-menu-item {
+    padding: 16px;
+    font-size: 15px;
+  }
+
+  .utility-menu-item svg {
+    width: 20px;
+    height: 20px;
+  }
+}
