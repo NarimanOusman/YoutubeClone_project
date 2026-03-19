@@ -7,6 +7,7 @@ const Auth = () => {
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState('');
@@ -93,6 +94,13 @@ const Auth = () => {
         setLoading(true);
 
         try {
+            // Validate that passwords match
+            if (password !== confirmPassword) {
+                showNotification('error', 'Passwords do not match.');
+                setLoading(false);
+                return;
+            }
+
             const trimmedEmail = email.trim();
 
             const { data, error } = await supabase.auth.signUp({
@@ -147,6 +155,7 @@ const Auth = () => {
             setActiveTab('login');
             setEmail('');
             setPassword('');
+            setConfirmPassword('');
             setFullName('');
             setAvatarFile(null);
             setAvatarPreview('');
@@ -328,6 +337,21 @@ const Auth = () => {
                                     required
                                     minLength={6}
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Confirm Password</label>
+                                <input
+                                    type="password"
+                                    placeholder="Re-enter your password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                />
+                                {confirmPassword && password !== confirmPassword && (
+                                    <span className="error-text">Passwords do not match</span>
+                                )}
                             </div>
 
                             {password.length > 0 && (() => {
