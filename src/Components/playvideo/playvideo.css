@@ -8,6 +8,7 @@
   background-color: #f9f9f9;
   box-sizing: border-box;
   min-height: calc(100vh - 60px);
+  overflow-x: hidden;
 }
 
 .main-content {
@@ -232,6 +233,8 @@
   font-size: 14px;
   line-height: 1.5;
   margin: 10px 0 20px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 /* =========================================================
@@ -368,6 +371,8 @@
   margin-bottom: 2px;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .comment-body h3 small {
@@ -380,10 +385,11 @@
   font-size: 14px;
   margin: 4px 0;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .comment-media img {
-  max-width: 200px;
+  max-width: min(200px, 100%);
   max-height: 300px;
   border-radius: 10px;
   margin-top: 10px;
@@ -577,10 +583,13 @@
   .add-comment-section {
     padding: 0 15px;
     margin: 15px 0;
+    max-width: 100%;
   }
 
   .comment-block {
     padding: 0 15px;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .local-reply {
